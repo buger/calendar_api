@@ -17,6 +17,11 @@ Dir.glob('lib/models/**/*.rb') { |f| require File.expand_path(f) }
 Dir.glob('lib/api/**/*.rb') { |f| require File.expand_path(f) }
 
 RSpec.configure do |config|
+  def json_parse(response)
+    json_object = JSON.parse(last_response.body)
+    Hash === json_object ? Hash[json_object.sort] : json_object
+  end
+
   config.include Rack::Test::Methods
 
   config.before(:suite) do
