@@ -8,5 +8,7 @@ class Event
   key :end,          Time
   key :color,        String
   key :owner_id,     ObjectId
+
+  belongs_to :calendar
 end
 
