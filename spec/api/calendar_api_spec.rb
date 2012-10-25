@@ -8,20 +8,6 @@ describe CalendarAPI do
   end
 
   describe CalendarAPI do
-    describe "Helpers" do
-      describe "#extract" do
-        it "extracts hash" do
-          c = Class.new { include CalendarAPI::Helpers }.new
-          c.extract({:a => 1, :b => 2, :c => 3}, :a, :c).should == {:a => 1, :c => 3}
-        end
-
-        it "skips unmached attributes" do
-          c = Class.new { include CalendarAPI::Helpers }.new
-          c.extract({:a => 1, :b => 2, :c => 3}, :a, :d).should == {:a => 1}
-        end
-      end
-    end
-
     describe "GET /calendars" do
       let(:valid_params_1) { {"title" => "foo1", "description" => "bar1"} }
       let(:valid_params_2) { {"title" => "foo2" } }
@@ -234,7 +220,7 @@ describe CalendarAPI do
         it { json_parse(last_response).should == { "errors" => "Not Found" } }
       end
     end
-    
+
     describe "GET /events" do
       context "when parameters are valid" do
         before { get "/calendars/1/events" }
@@ -247,7 +233,7 @@ describe CalendarAPI do
 
       context "when parameters are invalid" do
       end
-    end
+    end   
   end
 end
 
