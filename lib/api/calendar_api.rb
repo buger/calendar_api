@@ -1,3 +1,5 @@
+require "active_support/core_ext/hash/slice.rb"
+
 class CalendarAPI < Grape::API
   class LengthLt < Grape::Validations::SingleOptionValidator
     def validate_param!(attr_name, params)
@@ -8,23 +10,11 @@ class CalendarAPI < Grape::API
     end
   end
 
-  module Helpers
-    def extract(hash, *attrs)
-      result = {}
-      attrs.each { |key| result[key] = hash[key] if hash[key] }
-      result
-    end
-  end
-
-  helpers do
-    include Helpers
-  end
-
   format :json
 
   resource :calendars do
     get do
-      Calendar.all.to_json(:only => ["title", "description"])
+      Calendar.all
     end
 
     params do
@@ -32,9 +22,9 @@ class CalendarAPI < Grape::API
       requires :description, :length_lt => 1000, :type => String
     end
     post do
-      calendar = Calendar.new(extract(params, :title, :description))
+      calendar = Calendar.new(params.slice(:title, :description))
       if calendar.save
-        calendar.to_json(:only => ["title", "description"])
+        calendar
       else
         error!({ :errors => calendar.errors.messages }, 401)
       end
@@ -42,7 +32,7 @@ class CalendarAPI < Grape::API
 
     get ":id" do
       if calendar = Calendar.find(params[:id])
-        calendar.to_json(:only => ["title", "description"])
+        calendar
       else
         error!({ :errors => "Not Found" }, 404)
       end
@@ -54,8 +44,8 @@ class CalendarAPI < Grape::API
     end
     put ":id" do
       if calendar = Calendar.find(params[:id])
-        if calendar.update_attributes(extract(params, :title, :description))
-          calendar.to_json(:only => ["title", "description"])
+        if calendar.update_attributes(params.slice(:title, :description))
+          calendar
         else
           error!({ :errors => calendar.errors.messages }, 401)
         end
@@ -72,7 +62,7 @@ class CalendarAPI < Grape::API
       end
     end
 
-    segment "/:calendar_id" do
+    segment "/:calendar_ids" do
       resource :events do
         get do
         end
