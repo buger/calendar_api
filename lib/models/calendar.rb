@@ -8,5 +8,9 @@ class Calendar
   validates_presence_of :title
 
   many :events
+
+  def serializable_hash(options = {})
+    super({:only => ["title", "description"]}.merge(options))
+  end
 end
 
