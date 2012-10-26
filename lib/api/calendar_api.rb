@@ -1,5 +1,3 @@
-require "active_support/core_ext/hash/slice.rb"
-
 class CalendarAPI < Grape::API
   class LengthLt < Grape::Validations::SingleOptionValidator
     def validate_param!(attr_name, params)
@@ -11,6 +9,7 @@ class CalendarAPI < Grape::API
   end
 
   format :json
+  error_format :json
 
   resource :calendars do
     get do
@@ -19,7 +18,7 @@ class CalendarAPI < Grape::API
 
     params do
       requires :title, :length_lt => 40, :type => String
-      requires :description, :length_lt => 1000, :type => String
+      optional :description, :length_lt => 1000, :type => String
     end
     post do
       calendar = Calendar.new(params.slice(:title, :description))
@@ -39,8 +38,8 @@ class CalendarAPI < Grape::API
     end
 
     params do
-      requires :title, :length_lt => 40, :type => String
-      requires :description, :length_lt => 1000, :type => String
+      optional :title, :length_lt => 40, :type => String
+      optional :description, :length_lt => 1000, :type => String
     end
     put ":id" do
       if calendar = Calendar.find(params[:id])
@@ -64,8 +63,12 @@ class CalendarAPI < Grape::API
 
     segment "/:calendar_ids" do
       resource :events do
+        params do
+          optional :start, :type => Integer
+          optional :end, :type => Integer
+        end
         get do
-          events = Event.search(params.slice(:calendar_ids, :start, :end)).to_a
+          events = Event.search(params.slice(:calendar_ids, :start, :end))
           if events.any?
             events.to_json
           else
