@@ -65,6 +65,12 @@ class CalendarAPI < Grape::API
     segment "/:calendar_ids" do
       resource :events do
         get do
+          events = Event.search(params.slice(:calendar_ids, :start, :end)).to_a
+          if events.any?
+            events.to_json
+          else
+            error!({ :errors => "Not Found" }, 404)
+          end
         end
       end
     end

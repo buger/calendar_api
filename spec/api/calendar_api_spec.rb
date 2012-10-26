@@ -1,4 +1,5 @@
 require "spec_helper.rb"
+require "active_support/core_ext/object/to_query.rb"
 
 describe CalendarAPI do
   include Rack::Test::Methods
@@ -221,19 +222,64 @@ describe CalendarAPI do
       end
     end
 
-    describe "GET /events" do
+    describe "GET /calendars/:ids/events" do
+      let(:calendar) { Calendar.create("title" => "abc", "description" => "cba") }
+      let!(:params_1) { {"title" => "1", "start" => 9.days.ago, "end" => 6.days.ago} }
+      let!(:params_2) { {"title" => "2", "start" => 8.days.ago, "end" => 7.days.ago} }
+      let!(:event_1) { calendar.events.create(params_1) }
+      let!(:event_2) { calendar.events.create(params_2) }
+
       context "when parameters are valid" do
-        before { get "/calendars/1/events" }
+        context "for a single calendar" do
+          before { get "/calendars/#{calendar.id.to_s}/events" }
 
-        it { last_response.status.should == 200 }
+          it { last_response.status.should == 200 }
 
-        it "returns events for the calendar" do
+          it "returns events for the calendar" do
+            json_parse(last_response)[0]["title"].should == params_1["title"]
+            json_parse(last_response)[1]["title"].should == params_2["title"]
+          end
+        end
+
+        context "for multiple calendars" do
+          let(:calendar_2) { Calendar.create("title" => "2") }
+          let(:calendar_3) { Calendar.create("title" => "3") }
+          let!(:params_3) { {"title" => "3"} }
+          let!(:params_4) { {"title" => "4"} }
+          let!(:event_3) { calendar_2.events.create(params_3) }
+          let!(:event_4) { calendar_3.events.create(params_4) }
+          
+          before { get "/calendars/#{calendar.id.to_s},#{calendar_2.id.to_s}/events" }
+
+          it { last_response.status.should == 200 }
+
+          it "returns events for the calendar" do
+            json_parse(last_response)[0]["title"].should == params_1["title"]
+            json_parse(last_response)[1]["title"].should == params_2["title"]
+            json_parse(last_response)[2]["title"].should == params_3["title"]
+          end
+        end
+
+        context "when request contains 'start' or/and 'end' parameters" do
+          let!(:time_scope) { {:start => 8.days.ago, :end => 7.days.ago}.to_query }
+          before { get "/calendars/#{calendar.id.to_s}/events?#{time_scope}" }
+
+          it { last_response.status.should == 200 }
+
+          it "returns events within specified range" do
+            json_parse(last_response).count.should == 1
+            json_parse(last_response)[0]["title"].should == params_2["title"]
+          end
         end
       end
 
       context "when parameters are invalid" do
+        before { get "/calendars/123123123123/events" }
+
+        it { last_response.status.should == 404 }
+        it { json_parse(last_response).should == { "errors" => "Not Found" } }
       end
-    end   
+    end
   end
 end
 
