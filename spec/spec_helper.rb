@@ -15,13 +15,14 @@ require "pry-remote"
 MongoMapper.database = "calendar_api"
 
 Dir.glob('lib/models/**/*.rb') { |f| require File.expand_path(f) }
+Dir.glob('spec/support/**/*.rb') { |f| require File.expand_path(f) }
 Dir.glob('lib/api/**/*.rb') { |f| require File.expand_path(f) }
 
 require_relative "factories"
 
 RSpec.configure do |config|
   def json_parse(response)
-    json_object = JSON.parse(last_response.body)
+    json_object = JSON.parse(response.body)
     case json_object
     when Hash
       Hash[json_object.sort].symbolize_keys
@@ -32,16 +33,7 @@ RSpec.configure do |config|
     end
   end
 
-  RSpec::Matchers.define :contain_events do |*events|
-    match do |response|
-      json_parse(response).size == events.size &&
-      json_parse(response).zip(events).all? do |actual_event, expected_event|
-        actual_event[:title] == expected_event[:title] &&
-        Time.parse(actual_event[:start]) == Time.at(expected_event[:start]).utc.to_s &&
-        Time.parse(actual_event[:end]) == Time.at(expected_event[:end]).utc.to_s
-      end
-    end
-  end
+  config.include RSpec::CustomMatchers
 
   config.include Rack::Test::Methods
   config.include FactoryGirl::Syntax::Methods
