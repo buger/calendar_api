@@ -331,6 +331,73 @@ describe CalendarAPI do
         last_response.body.should contain_events(event_attrs)
       end
     end
+
+    describe "PUT /calendars/:calendar_id/events/:id" do
+      let!(:calendar) { create(:calendar) }
+      let!(:origin_attrs) { attributes_for(:event) }
+      let!(:new_attrs) { attributes_for(:event) }
+      let!(:event) { create(:event, origin_attrs.merge(:calendar => calendar)) }
+
+      it "returns an error if 'calendar_id' is not valid" do
+        put "/calendars/12312312/events/#{event.id}"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
+      end
+
+      it "returns an error if 'id' has wrong format" do
+        put "/calendars/#{calendar.id}/events/#{"a"*23}"
+        last_response.status.should == 400
+        last_response.body.should == { :error => "invalid parameter: id" }.to_json
+      end
+
+      it "returns an error if 'id' is not valid" do
+        put "/calendars/#{calendar.id}/events/#{"a"*24}"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
+      end
+
+      it "returns an error if 'title' is blank" do
+        put "/calendars/#{calendar.id}/events/#{event.id}", origin_attrs.merge(:title => "")
+        last_response.status.should == 401
+        last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
+        event.reload
+        event.title.should == origin_attrs[:title]
+        event.description.should == origin_attrs[:description]
+      end
+
+      it "returns an error if 'title' is too long" do
+        put "/calendars/#{calendar.id}/events/#{event.id}", origin_attrs.merge(:title => "a"*41)
+        last_response.status.should == 401
+        last_response.body.should == { :errors => 
+           { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+        event.reload
+        event.title.should == origin_attrs[:title]
+        event.description.should == origin_attrs[:description]
+      end
+
+      it "updates the event" do
+        put "/calendars/#{calendar.id}/events/#{event.id}", new_attrs
+        last_response.status.should == 200
+        last_response.body.should contain_events(new_attrs)
+        event.reload
+        event.title.should == new_attrs[:title]
+        event.description.should == new_attrs[:description]
+      end
+
+      it "doesn't allow to update 'calendar_id'" do
+        put "/calendars/#{calendar.id}/events/#{event.id}", new_attrs.merge!(:calendar_id => "123")
+        last_response.status.should == 200
+        event.reload
+        event.calendar_id.should_not == new_attrs[:calendar_id]
+      end
+
+      it "doesn't allow to update 'id'" do
+        put "/calendars/#{calendar.id}/events/#{event.id}", new_attrs.merge!(:id => "123")
+        last_response.status.should == 200
+        event.reload
+        event.calendar_id.should_not == new_attrs[:id]
+      end
+    end
   end
 end
 

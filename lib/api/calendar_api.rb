@@ -30,7 +30,7 @@ class CalendarAPI < Grape::API
     end
 
     get ":id" do
-      if calendar = Calendar.find(params[:id])
+      if calendar = Calendar.find(params.id)
         calendar
       else
         error!({ :errors => "Not Found" }, 404)
@@ -42,7 +42,7 @@ class CalendarAPI < Grape::API
       optional :description, :length_lt => 1000, :type => String
     end
     put ":id" do
-      if calendar = Calendar.find(params[:id])
+      if calendar = Calendar.find(params.id)
         if calendar.update_attributes(params.slice(:title, :description))
           calendar
         else
@@ -54,7 +54,7 @@ class CalendarAPI < Grape::API
     end
 
     delete ":id" do
-      if calendar = Calendar.find(params[:id])
+      if calendar = Calendar.find(params.id)
         calendar.delete
       else
         error!({ :errors => "Not Found" }, 404)
@@ -78,13 +78,13 @@ class CalendarAPI < Grape::API
 
         params do
           requires :title, :length_lt => 40, :type => String
-          requires :start, :type => Integer
-          requires :end, :type => Integer
           optional :description, :length_lt => 1000, :type => String
           optional :color, :length_lt => 40, :type => String
+          requires :start, :type => Integer
+          requires :end, :type => Integer
         end
         post do
-          if calendar = Calendar.find(params[:calendar_ids])
+          if calendar = Calendar.find(params.calendar_ids)
             event = calendar.events.build(params.slice(:title, :description, :start, :end, :color))
             if event.save
               event
@@ -100,6 +100,27 @@ class CalendarAPI < Grape::API
           event = Event.find(params.id)
           if event && event.calendar_id.to_s == params.calendar_ids
             event
+          else
+            error!({ :errors => "Not Found" }, 404)
+          end
+        end
+
+        params do
+          requires :id, type: String, regexp: %r{\A[a-z0-9]{24}\Z}
+          optional :title, :length_lt => 40, :type => String
+          optional :description, :length_lt => 1000, :type => String
+          optional :color, :length_lt => 40, :type => String
+          optional :start, :type => Integer
+          optional :end, :type => Integer
+        end
+        put ":id" do
+          event = Event.find(params.id)
+          if event && event.calendar_id.to_s == params.calendar_ids
+            if event.update_attributes(params.slice(:title, :description, :start, :end, :color))
+              event
+            else
+              error!({ :errors => event.errors.messages }, 401)
+            end
           else
             error!({ :errors => "Not Found" }, 404)
           end
