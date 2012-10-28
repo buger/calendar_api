@@ -244,7 +244,7 @@ describe CalendarAPI do
       end
     end
 
-    describe "POST /calendars/:id/events" do
+    describe "POST /calendars/:calendar_id/events" do
       let!(:calendar) { create(:calendar) }
       let(:event_attrs) { attributes_for(:event).slice(:title, :start, :end, :color) }
 
@@ -305,6 +305,30 @@ describe CalendarAPI do
         last_response.status.should == 201
         last_response.body.should contain_events(event_attrs)
         Event.last.title.should == event_attrs[:title]
+      end
+    end
+
+    describe "GET /calendars/:calendar_id/events/:id" do
+      let!(:calendar) { create(:calendar) }
+      let!(:event_attrs) { attributes_for(:event) }
+      let!(:event) { create(:event, event_attrs.merge(:calendar => calendar)) }
+
+      it "returns an error if 'calendar_id is not valid'" do
+        get "/calendars/12312312/events/#{event.id}"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
+      end
+
+      it "returns an error if 'id' is not valid" do
+        get "/calendars/#{calendar.id}/events/123123123"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
+      end
+
+      it "returns an event" do
+        get "/calendars/#{calendar.id}/events/#{event.id}"
+        last_response.status.should == 200
+        last_response.body.should contain_events(event_attrs)
       end
     end
   end

@@ -61,7 +61,7 @@ class CalendarAPI < Grape::API
       end
     end
 
-    segment "/:calendar_ids" do
+    namespace "/:calendar_ids" do
       resource :events do
         params do
           optional :start, :type => Integer
@@ -91,6 +91,15 @@ class CalendarAPI < Grape::API
             else
               error!({ :errors => event.errors.messages }, 401)
             end
+          else
+            error!({ :errors => "Not Found" }, 404)
+          end
+        end
+
+        get ":id" do
+          event = Event.find(params.id)
+          if event && event.calendar_id.to_s == params.calendar_ids
+            event
           else
             error!({ :errors => "Not Found" }, 404)
           end

@@ -4,8 +4,8 @@ FactoryGirl.define do
     sequence(:owner_id) { |n| "id#{n}" }
   end
 
-  start_at = proc { rand(11...20).days.ago.to_i }
-  end_at   = proc { rand(1...10).days.ago.to_i }
+  start_at = proc { rand(11..20).days.ago.to_i }
+  end_at   = proc { rand(1..10).days.ago.to_i }
 
   factory :event do
     sequence(:title) { |n| "title #{n}" }
