@@ -4,6 +4,8 @@ gem 'grape'
 gem 'mongo_mapper'
 gem 'bson_ext'
 
+gem 'rake'
+
 gem 'rspec'
 gem 'rack-test'
 gem 'database_cleaner'
