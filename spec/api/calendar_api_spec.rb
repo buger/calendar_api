@@ -23,76 +23,38 @@ describe CalendarAPI do
       let(:params) { attributes_for(:calendar, :id => 123, :owner_id => 124) }
 
       context "when parameters are valid" do
-        before { post "/calendars", params }
-
-        it { last_response.status.should == 201 }
-        it { last_response.body.should == params.slice(:title).to_json }
-
-        it "doesn't allow the user to assign 'owner_id'" do
-          Calendar.where(:owner_id => params[:owner_id]).all.should == []
-        end
-
-        it "doesn't allow the user to assign 'id'" do
-          Calendar.find(params[:id]).should == nil
-        end
-
         it "creates a new calendar" do
-          expect { post "/calendars", params }.to change(Calendar, :count).by(+1)
+          post "/calendars", params
+          last_response.status.should == 201
+          last_response.body.should == params.slice(:title).to_json
+          Calendar.count.should == 1
+          Calendar.last.owner_id.should_not == params[:owner_id]
+          Calendar.last.id.should_not == params[:id]
         end
       end
 
       context "when parameters are invalid" do
-        describe "validates the presense of 'title'" do
-          let(:invalid_params) { params.merge(:title => "") }
-
-          before { post "calendars", invalid_params }
-
-          it { last_response.status.should == 401 }
-
-          it "doesn't create a new record" do
-            expect { post "calendars", invalid_params }.
-              to change(Calendar, :count).by(0)
-          end
-
-          it "returns an error message" do
-            last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
-          end
+        it "returns an error if 'title' is not provided" do
+          post "calendars", params.merge(:title => "")
+          last_response.status.should == 401
+          last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
+          Calendar.count.should == 0
         end
 
-        describe "validates the length of title" do
-          let(:invalid_params) { params.merge(:title => "a" * 41) }
-
-          before { post "calendars", invalid_params }
-
-          it { last_response.status.should == 401 }
-
-          it "doesn't create a new record" do
-            expect { post "calendars", invalid_params }.
-              to change(Calendar, :count).by(0)
-          end
-
-          it "returns an error message" do
-            last_response.body.should == { :errors => 
-              { "title" => ["must be equal or less than 40 characters long"] } }.to_json
-          end
+        it "returns an error if 'title' is too long" do
+          post "calendars", params.merge(:title => "a" * 41)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+            { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+          Calendar.count.should == 0
         end
 
-        describe "validates the length of description" do
-          let(:invalid_params) { params.merge(:description => "a" * 1001) }
-          
-          before { post "calendars", invalid_params }
-
-          it { last_response.status.should == 401 }
-
-          it "doesn't create a new record" do
-            expect { post "calendars", invalid_params }.
-              to change(Calendar, :count).by(0)
-          end
-
-          it "returns an error message" do
-            last_response.body.should == { :errors => 
-              { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
-          end
+        it "returns an error if 'describe' is too long" do
+          post "calendars", params.merge(:description => "a" * 1000)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+            { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
+          Calendar.count.should == 0
         end
       end
     end
@@ -120,12 +82,11 @@ describe CalendarAPI do
       let(:calendar) { create(:calendar, origin_params) }
 
       context "when parameters are valid" do
-        before { put "/calendars/#{calendar.id}", new_params }
-
-        it { last_response.status.should == 200 }
-        it { last_response.body.should == new_params.slice(:description, :title).to_json }
-
         it "updates the object" do
+          put "/calendars/#{calendar.id}", new_params
+          last_response.status.should == 200
+          last_response.body.should == new_params.slice(:description, :title).to_json
+
           calendar.reload
           calendar.title.should == new_params[:title]
           calendar.description.should == new_params[:description]
@@ -133,44 +94,40 @@ describe CalendarAPI do
       end
 
       context "when parameters are invalid" do
-        context "when 'id' is invalid" do
-          let(:invalid_id) { 12331231231312312 }
-          before { put "/calendars/#{invalid_id}", new_params }
-
-          it { last_response.status.should == 404 }
-          it { last_response.body.should == { :errors => "Not Found" }.to_json }
+        it "returns an error if 'id' if invalid" do
+          put "/calendars/123213123", new_params
+          last_response.status.should == 404
+          last_response.body.should == { :errors => "Not Found" }.to_json
         end
 
-        context "when 'title' is blank" do
-          let(:invalid_params) { new_params.merge(:title => "") }
-          before { put "/calendars/#{calendar.id}", invalid_params }
+        it "returns an error if 'title' is blank" do
+          put "/calendars/#{calendar.id}", new_params.merge(:title => "")
+          last_response.status.should == 401
+          last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
 
-          it { last_response.status.should == 401 }
-
-          it { last_response.body.should == { :errors => 
-            { "title" => ["can't be blank"] } }.to_json }
-
-          it "doesn't update the object" do
-            calendar.reload
-            calendar.title.should == origin_params[:title]
-            calendar.description.should == origin_params[:description]
-          end
+          calendar.reload
+          calendar.title.should == origin_params[:title]
+          calendar.description.should == origin_params[:description]
         end
 
-        context "when 'title' is too long" do
-          let(:invalid_params) { new_params.merge("title" => "1"*41) }
-          before { put "/calendars/#{calendar.id}", invalid_params }
-          
-          it { last_response.status.should == 401 }
+        it "returns an error if 'title' is too long" do
+          put "/calendars/#{calendar.id}", new_params.merge("title" => "1"*41)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+             { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+          calendar.reload
+          calendar.title.should == origin_params[:title]
+          calendar.description.should == origin_params[:description]
+        end
 
-          it { last_response.body.should == { :errors => 
-             { "title" => ["must be equal or less than 40 characters long"] } }.to_json }
-
-          it "doesn't update the object" do
-            calendar.reload
-            calendar.title.should == origin_params[:title]
-            calendar.description.should == origin_params[:description]
-          end
+        it "returns an error if 'description' is too long" do
+          put "/calendars/#{calendar.id}", new_params.merge("description" => "1"*1000)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+             { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
+          calendar.reload
+          calendar.title.should == origin_params[:title]
+          calendar.description.should == origin_params[:description]
         end
       end
     end
@@ -295,24 +252,28 @@ describe CalendarAPI do
         post "/calendars/1232131/events", event_attrs
         last_response.status.should == 404
         last_response.body.should == { :errors => "Not Found" }.to_json
+        Event.count.should == 0
       end
 
       it "returns an error if 'title' is not provided" do
         post "/calendars/#{calendar.id}/events", event_attrs.slice(:start, :end, :color)
         last_response.status.should == 400
         last_response.body.should == { :error => "missing parameter: title" }.to_json
+        Event.count.should == 0
       end
 
       it "returns an error if 'start' is not provided" do
         post "/calendars/#{calendar.id}/events", event_attrs.slice(:title, :end, :color)
         last_response.status.should == 400
         last_response.body.should == { :error => "missing parameter: start" }.to_json
+        Event.count.should == 0
       end
 
       it "returns an error if 'end' is not provided" do
         post "/calendars/#{calendar.id}/events", event_attrs.slice(:title, :start, :color)
         last_response.status.should == 400
         last_response.body.should == { :error => "missing parameter: end" }.to_json
+        Event.count.should == 0
       end
 
       it "returns an error if 'title' is too long" do
@@ -320,6 +281,7 @@ describe CalendarAPI do
         last_response.status.should == 401
         last_response.body.should == { :errors => 
           { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+        Event.count.should == 0
       end
 
       it "returns an error if 'description' is too long" do
@@ -327,6 +289,7 @@ describe CalendarAPI do
         last_response.status.should == 401
         last_response.body.should == { :errors => 
           { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
+        Event.count.should == 0
       end
 
       it "returns an error if 'color' is too long" do
@@ -334,12 +297,14 @@ describe CalendarAPI do
         last_response.status.should == 401
         last_response.body.should == { :errors => 
           { "color" => ["must be equal or less than 40 characters long"] } }.to_json
+        Event.count.should == 0
       end
 
       it "creates a new event for given calenar" do
         post "/calendars/#{calendar.id}/events", event_attrs
         last_response.status.should == 201
         last_response.body.should contain_events(event_attrs)
+        Event.last.title.should == event_attrs[:title]
       end
     end
   end
