@@ -75,6 +75,26 @@ class CalendarAPI < Grape::API
             error!({ :errors => "Not Found" }, 404)
           end
         end
+
+        params do
+          requires :title, :length_lt => 40, :type => String
+          requires :start, :type => Integer
+          requires :end, :type => Integer
+          optional :description, :length_lt => 1000, :type => String
+          optional :color, :length_lt => 40, :type => String
+        end
+        post do
+          if calendar = Calendar.find(params[:calendar_ids])
+            event = calendar.events.build(params.slice(:title, :description, :start, :end, :color))
+            if event.save
+              event
+            else
+              error!({ :errors => event.errors.messages }, 401)
+            end
+          else
+            error!({ :errors => "Not Found" }, 404)
+          end
+        end
       end
     end
   end

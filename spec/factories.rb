@@ -13,7 +13,6 @@ FactoryGirl.define do
     send(:end, end_at.call)
 
     calendar
-    sequence(:owner_id) { |n| "id#{n}" }
   end
 end
 
