@@ -398,6 +398,38 @@ describe CalendarAPI do
         event.calendar_id.should_not == new_attrs[:id]
       end
     end
+
+    describe "DELETE /calendars/:calendar_id/events/:id" do
+      let!(:calendar) { create(:calendar) }
+      let!(:event) { create(:event, :calendar => calendar) }
+
+      it "returns an error if 'calendar_id' is not valid" do
+        delete "/calendars/12312312/events/#{event.id}"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
+        Event.count.should == 1
+      end
+
+      it "returns an error if 'id' has wrong format" do
+        delete "/calendars/#{calendar.id}/events/#{"a"*23}"
+        last_response.status.should == 400
+        last_response.body.should == { :error => "invalid parameter: id" }.to_json
+        Event.count.should == 1
+      end
+
+      it "returns an error if 'id' is not valid" do
+        delete "/calendars/#{calendar.id}/events/#{"a"*24}"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
+        Event.count.should == 1
+      end
+
+      it "destroys the event" do
+        delete "/calendars/#{calendar.id}/events/#{event.id}"
+        last_response.status.should == 200
+        Event.count.should == 0
+      end
+    end
   end
 end
 

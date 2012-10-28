@@ -125,6 +125,18 @@ class CalendarAPI < Grape::API
             error!({ :errors => "Not Found" }, 404)
           end
         end
+
+        params do
+          requires :id, type: String, regexp: %r{\A[a-z0-9]{24}\Z}
+        end
+        delete ":id" do
+          event = Event.find(params.id)
+          if event && event.calendar_id.to_s == params.calendar_ids
+            event.delete
+          else
+            error!({ :errors => "Not Found" }, 404)
+          end
+        end
       end
     end
   end
