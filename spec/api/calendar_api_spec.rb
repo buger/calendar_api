@@ -9,231 +9,145 @@ describe CalendarAPI do
 
   describe CalendarAPI do
     describe "GET /calendars" do
-      let(:valid_params_1) { {"title" => "foo1", "description" => "bar1"} }
-      let(:valid_params_2) { {"title" => "foo2" } }
-
-      before do
-        Calendar.create(valid_params_1.merge("owner_id" => "1234"))
-        Calendar.create(valid_params_2.merge("owner_id" => "1234"))
-        get "/calendars"
-      end
-
-      it { last_response.status.should == 200 }
+      let(:params1) { attributes_for(:calendar) }
+      let!(:calendar1) { create(:calendar, params1) }
 
       it "returns all the calendars" do
-        json_parse(last_response).should == [valid_params_1, valid_params_2]
+        get "/calendars"
+        last_response.status.should == 200
+        last_response.body.should == [params1.slice(:title)].to_json
       end
     end
 
     describe "POST /calendars" do
-      let(:valid_params) { {:title => "foo3", :description => "bar3"} }
+      let(:params) { attributes_for(:calendar, :id => 123, :owner_id => 124) }
 
       context "when parameters are valid" do
-        before { post "/calendars", valid_params }
-
-        it { last_response.status.should == 201 }
-
         it "creates a new calendar" do
-          expect { post "/calendars", valid_params }.
-            to change(Calendar, :count).by(+1)
-        end
-
-        it "doesn't include 'owner_id' in response" do
-          json_parse(last_response).has_key?("owner_id").should be_false
-        end
-
-        it "doesn't allow the user to assign 'owner_id'" do
-          post "/calendars", valid_params.merge(:owner_id => "value")
-          Calendar.where(:owner_id => "value").all.should == []
-        end
-
-        it "doesn't allow the user to assign 'id'" do
-          post "/calendars", valid_params.merge(:id => 123)
-          Calendar.find(123).should == nil
+          post "/calendars", params
+          last_response.status.should == 201
+          last_response.body.should == params.slice(:title).to_json
+          last_response.header["Location"].should == "/calendars/#{Calendar.last.id}"
+          Calendar.count.should == 1
+          Calendar.last.owner_id.should_not == params[:owner_id]
+          Calendar.last.id.should_not == params[:id]
         end
       end
 
       context "when parameters are invalid" do
-        describe "validates the presense of 'title'" do
-          let(:invalid_params) { valid_params.merge(:title => "") }
-
-          before { post "calendars", invalid_params }
-
-          it { last_response.status.should == 401 }
-
-          it "doesn't create a new record" do
-            expect { post "calendars", invalid_params }.
-              to change(Calendar, :count).by(0)
-          end
-
-          it "returns an error message" do
-            json_parse(last_response).should ==
-              { "errors" => { "title" => ["can't be blank"] } }
-          end
+        it "returns an error if 'title' is not provided" do
+          post "calendars", params.merge(:title => "")
+          last_response.status.should == 401
+          last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
+          Calendar.count.should == 0
         end
 
-        describe "validates the length of title" do
-          let(:invalid_params) { valid_params.merge(:title => "a" * 41) }
-
-          before { post "calendars", invalid_params }
-
-          it { last_response.status.should == 401 }
-
-          it "doesn't create a new record" do
-            expect { post "calendars", invalid_params }.
-              to change(Calendar, :count).by(0)
-          end
-
-          it "returns an error message" do
-            json_parse(last_response).should == { "errors" => 
-              { "title" => ["must be equal or less than 40 characters long"] } }
-          end
+        it "returns an error if 'title' is too long" do
+          post "calendars", params.merge(:title => "a" * 41)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+            { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+          Calendar.count.should == 0
         end
 
-        describe "validates the length of description" do
-          let(:invalid_params) { valid_params.merge(:description => "a" * 1001) }
-          
-          before { post "calendars", invalid_params }
-
-          it { last_response.status.should == 401 }
-
-          it "doesn't create a new record" do
-            expect { post "calendars", invalid_params }.
-              to change(Calendar, :count).by(0)
-          end
-
-          it "returns an error message" do
-            json_parse(last_response).should == { "errors" => 
-              { "description" => ["must be equal or less than 1000 characters long"] } }
-          end
+        it "returns an error if 'describe' is too long" do
+          post "calendars", params.merge(:description => "a" * 1000)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+            { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
+          Calendar.count.should == 0
         end
-
       end
     end
 
     describe "GET /calendars/:id" do
-      context "when parameters are valid" do
-        let(:valid_params) { {:title => "qqq", :description => "q"} }
-        let(:calendar) { Calendar.create(valid_params) }
+      let(:params) { attributes_for(:calendar, :description => "q") }
+      let(:calendar) { create(:calendar, params) }
 
-        before { get "/calendars/#{calendar.id.to_s}" }
-
-        it { last_response.status.should == 200 }
-
-        it "doesn't include 'owner_id'" do
-          json_parse(last_response).has_key?("owner_id").should be_false
-        end
-
-        it "returns corresponding object" do
-          json_parse(last_response) == valid_params
-        end
+      it "returns the calendar" do
+        get "/calendars/#{calendar.id}"
+        last_response.status.should == 200
+        last_response.body.should == Hash[params.slice(:title, :description).sort].to_json
       end
 
-      context "when parameters are invalid" do
-        before { get "/calendars/1234124234" }
-
-        it { last_response.status.should == 404 }
-        it { json_parse(last_response).should == { "errors" => "Not Found" } }
+      it "returns an error if 'id' is invalid" do
+        get "/calendars/1234124234"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
       end
     end
 
     describe "PUT /calendars/:id" do
-      let(:origin_params) { {"title" => "abc", "description" => "cba"} }
-      let(:valid_params)  { {"title" => "111", "description" => "222"} }
-      let(:calendar) { Calendar.create(origin_params) }
+      let(:origin_params) { attributes_for(:calendar) }
+      let(:new_params) { attributes_for(:calendar, :description => "q") }
+      let(:calendar) { create(:calendar, origin_params) }
 
       context "when parameters are valid" do
-        before { put "/calendars/#{calendar.id.to_s}", valid_params }
-
-        it { last_response.status.should == 200 }
-
-        it "doesn't include 'owner_id'" do
-          json_parse(last_response).has_key?("owner_id").should be_false
-        end
-
         it "updates the object" do
-          json_parse(last_response).should == valid_params
-          Calendar.find(calendar.id).title.should == valid_params["title"]
-          Calendar.find(calendar.id).description.should == valid_params["description"]
+          put "/calendars/#{calendar.id}", new_params
+          last_response.status.should == 200
+          last_response.body.should == new_params.slice(:description, :title).to_json
+
+          calendar.reload
+          calendar.title.should == new_params[:title]
+          calendar.description.should == new_params[:description]
         end
       end
 
       context "when parameters are invalid" do
-        context "when 'id' is invalid" do
-          let(:invalid_id) { 12331231231312312 }
-          before { put "/calendars/#{invalid_id}", valid_params }
-
-          it { last_response.status.should == 404 }
-          it { json_parse(last_response).should == { "errors" => "Not Found" } }
+        it "returns an error if 'id' if invalid" do
+          put "/calendars/123213123", new_params
+          last_response.status.should == 404
+          last_response.body.should == { :errors => "Not Found" }.to_json
         end
 
-        context "when 'title' is blank" do
-          let(:invalid_params) { valid_params.merge("title" => "") }
-          before { put "/calendars/#{calendar.id.to_s}", invalid_params }
+        it "returns an error if 'title' is blank" do
+          put "/calendars/#{calendar.id}", new_params.merge(:title => "")
+          last_response.status.should == 401
+          last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
 
-          it { last_response.status.should == 401 }
-
-          it "doesn't update the object" do
-            Calendar.find(calendar.id).title.should == origin_params["title"]
-            Calendar.find(calendar.id).description.should == origin_params["description"]
-          end
-
-          it "returns an error message" do
-            json_parse(last_response).should ==
-              { "errors" => { "title" => ["can't be blank"] } }
-          end
+          calendar.reload
+          calendar.title.should == origin_params[:title]
+          calendar.description.should == origin_params[:description]
         end
 
-        context "when 'title' is too long" do
-          let(:invalid_params) { valid_params.merge("title" => "1"*41) }
-          before { put "/calendars/#{calendar.id.to_s}", invalid_params }
-          
-          it { last_response.status.should == 401 }
+        it "returns an error if 'title' is too long" do
+          put "/calendars/#{calendar.id}", new_params.merge("title" => "1"*41)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+             { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+          calendar.reload
+          calendar.title.should == origin_params[:title]
+          calendar.description.should == origin_params[:description]
+        end
 
-          it "doesn't update the object" do
-            Calendar.find(calendar.id).title.should == origin_params["title"]
-            Calendar.find(calendar.id).description.should == origin_params["description"]
-          end
-
-          it "returns an error message" do
-            json_parse(last_response).should == { "errors" => 
-              { "title" => ["must be equal or less than 40 characters long"] } }
-          end
+        it "returns an error if 'description' is too long" do
+          put "/calendars/#{calendar.id}", new_params.merge("description" => "1"*1000)
+          last_response.status.should == 401
+          last_response.body.should == { :errors => 
+             { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
+          calendar.reload
+          calendar.title.should == origin_params[:title]
+          calendar.description.should == origin_params[:description]
         end
       end
     end
 
     describe "DELETE /calendars/:id" do
-      let(:calendar) { Calendar.create("title" => "abc", "description" => "cba") }
+      let!(:calendar) { create(:calendar) }
 
-      context "when parameters are valid" do
-        before { delete "/calendars/#{calendar.id.to_s}" }
-
-        it { last_response.status.should == 200 }
-        it { Calendar.find(calendar.id).should == nil }
+      it "removes the calendar" do
+        delete "/calendars/#{calendar.id}"
+        last_response.status.should == 200
+        Calendar.find(calendar.id).should == nil
       end
 
-      context "when parameters are invalid" do
-        before { delete "/calendars/21312312312" }
-
-        it { last_response.status.should == 404 }
-        it { json_parse(last_response).should == { "errors" => "Not Found" } }
+      it "returns an error if 'id' is invalid" do
+        delete "/calendars/21312312312"
+        last_response.status.should == 404
+        last_response.body.should == { :errors => "Not Found" }.to_json
       end
     end
-
-    describe "GET /events" do
-      context "when parameters are valid" do
-        before { get "/calendars/1/events" }
-
-        it { last_response.status.should == 200 }
-
-        it "returns events for the calendar" do
-        end
-      end
-
-      context "when parameters are invalid" do
-      end
-    end   
   end
 end
 

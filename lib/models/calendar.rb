@@ -7,6 +7,8 @@ class Calendar
 
   validates_presence_of :title
 
+  attr_accessible :title, :description
+
   many :events
 
   def serializable_hash(options = {})
