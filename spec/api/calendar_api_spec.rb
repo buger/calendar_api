@@ -27,6 +27,7 @@ describe CalendarAPI do
           post "/calendars", params
           last_response.status.should == 201
           last_response.body.should == params.slice(:title).to_json
+          last_response.header["Location"].should == "/calendars/#{Calendar.last.id}"
           Calendar.count.should == 1
           Calendar.last.owner_id.should_not == params[:owner_id]
           Calendar.last.id.should_not == params[:id]

@@ -14,6 +14,7 @@ class CalendarAPI < Grape::API
     post do
       calendar = Calendar.new(params.slice(:title, :description))
       if calendar.save
+        header("Location", location_for(calendar))
         calendar
       else
         error!({ :errors => calendar.errors.messages }, 401)

@@ -29,6 +29,7 @@ class CalendarAPI < Grape::API
           if calendar = Calendar.find(params.calendar_ids)
             event = calendar.events.build(params.slice(:title, :description, :start, :end, :color))
             if event.save
+              header("Location", location_for(event))
               event
             else
               error!({ :errors => event.errors.messages }, 401)

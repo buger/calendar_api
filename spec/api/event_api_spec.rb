@@ -163,6 +163,8 @@ describe CalendarAPI do
       post "/calendars/#{calendar.id}/events", event_attrs
       last_response.status.should == 201
       last_response.body.should contain_events(event_attrs)
+      last_response.header["Location"].should == 
+        "/calendars/#{calendar.id}/events/#{Event.last.id}"
       Event.last.title.should == event_attrs[:title]
     end
   end
