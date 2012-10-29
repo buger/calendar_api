@@ -1,7 +1,10 @@
+require 'digest/sha1'
+
 FactoryGirl.define do
   factory :calendar do
     sequence(:title) { |n| "title #{n}" }
-    sequence(:owner_id) { |n| "id#{n}" }
+    
+    customer
   end
 
   start_at = proc { rand(11..20).days.ago.to_i }
@@ -13,6 +16,12 @@ FactoryGirl.define do
     send(:end, end_at.call)
 
     calendar
+  end
+
+  token = proc { Digest::SHA1.hexdigest Time.now.to_s }
+
+  factory :customer do
+    api_key token.call
   end
 end
 

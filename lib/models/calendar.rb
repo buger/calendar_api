@@ -10,6 +10,7 @@ class Calendar
   attr_accessible :title, :description
 
   many :events
+  belongs_to :customer
 
   def serializable_hash(options = {})
     super({:only => ["title", "description"]}.merge(options))
