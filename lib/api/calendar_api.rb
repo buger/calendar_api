@@ -1,7 +1,4 @@
 class CalendarAPI < Grape::API
-  format :json
-  error_format :json
-
   resource :calendars do
     get do
       Calendar.all
