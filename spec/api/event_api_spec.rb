@@ -203,12 +203,6 @@ describe CalendarAPI do
       last_response.body.should == { :errors => "Not Found" }.to_json
     end
 
-    it "returns an error if 'id' has wrong format" do
-      put "/calendars/#{calendar.id}/events/#{"a"*23}"
-      last_response.status.should == 400
-      last_response.body.should == { :error => "invalid parameter: id" }.to_json
-    end
-
     it "returns an error if 'id' is not valid" do
       put "/calendars/#{calendar.id}/events/#{"a"*24}"
       last_response.status.should == 404
@@ -269,13 +263,6 @@ describe CalendarAPI do
       Event.count.should == 1
     end
 
-    it "returns an error if 'id' has wrong format" do
-      delete "/calendars/#{calendar.id}/events/#{"a"*23}"
-      last_response.status.should == 400
-      last_response.body.should == { :error => "invalid parameter: id" }.to_json
-      Event.count.should == 1
-    end
-
     it "returns an error if 'id' is not valid" do
       delete "/calendars/#{calendar.id}/events/#{"a"*24}"
       last_response.status.should == 404
@@ -290,3 +277,4 @@ describe CalendarAPI do
     end
   end
 end
+

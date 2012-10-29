@@ -48,7 +48,6 @@ class CalendarAPI < Grape::API
         end
 
         params do
-          requires :id, type: String, regexp: %r{\A[a-z0-9]{24}\Z}
           optional :title, :length_lt => 40, :type => String
           optional :description, :length_lt => 1000, :type => String
           optional :color, :length_lt => 40, :type => String
@@ -68,9 +67,6 @@ class CalendarAPI < Grape::API
           end
         end
 
-        params do
-          requires :id, type: String, regexp: %r{\A[a-z0-9]{24}\Z}
-        end
         delete ":id" do
           event = Event.find(params.id)
           if event && event.calendar_id.to_s == params.calendar_ids
