@@ -12,6 +12,8 @@ class Calendar
   many :events
   belongs_to :customer
 
+  scope :for_customer, lambda { |customer| where(:customer_id => customer.id) }
+
   def serializable_hash(options = {})
     super({:only => ["title", "description"]}.merge(options))
   end

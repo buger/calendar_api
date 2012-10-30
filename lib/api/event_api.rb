@@ -7,7 +7,7 @@ class CalendarAPI < Grape::API
           optional :end, :type => Integer
         end
         get do
-          events = Event.search(params.slice(:calendar_ids, :start, :end))
+          events = Event.search(params.slice(:calendar_ids, :start, :end), current_user)
           if events.any?
             events.to_json
           else
@@ -23,10 +23,10 @@ class CalendarAPI < Grape::API
           requires :end, :type => Integer
         end
         post do
-          if calendar = Calendar.find(params.calendar_ids)
+          calendar = Calendar.find(params.calendar_ids)
+          if calendar && current_user.has?(calendar)
             event = calendar.events.build(params.slice(:title, :description, :start, :end, :color))
             if event.save
-              header("Location", location_for(event))
               event
             else
               error!({ :errors => event.errors.messages }, 401)
@@ -38,7 +38,7 @@ class CalendarAPI < Grape::API
 
         get ":id" do
           event = Event.find(params.id)
-          if event && event.calendar_id.to_s == params.calendar_ids
+          if event && current_user.has?(event) && event.calendar_id.to_s == params.calendar_ids
             event
           else
             error!({ :errors => "Not Found" }, 404)
@@ -54,7 +54,7 @@ class CalendarAPI < Grape::API
         end
         put ":id" do
           event = Event.find(params.id)
-          if event && event.calendar_id.to_s == params.calendar_ids
+          if event && current_user.has?(event) && event.calendar_id.to_s == params.calendar_ids
             if event.update_attributes(params.slice(:title, :description, :start, :end, :color))
               event
             else
@@ -67,7 +67,7 @@ class CalendarAPI < Grape::API
 
         delete ":id" do
           event = Event.find(params.id)
-          if event && event.calendar_id.to_s == params.calendar_ids
+          if event && current_user.has?(event) && event.calendar_id.to_s == params.calendar_ids
             event.delete
           else
             error!({ :errors => "Not Found" }, 404)
@@ -77,3 +77,4 @@ class CalendarAPI < Grape::API
     end
   end
 end
+

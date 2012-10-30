@@ -1,4 +1,4 @@
-require 'digest/sha1'
+require 'securerandom'
 
 FactoryGirl.define do
   factory :calendar do
@@ -12,16 +12,15 @@ FactoryGirl.define do
 
   factory :event do
     sequence(:title) { |n| "title #{n}" }
-    start start_at.call
-    send(:end, end_at.call)
+
+    sequence(:start) { start_at.call }
+    sequence(:end)   { start_at.call }
 
     calendar
   end
 
-  token = proc { Digest::SHA1.hexdigest Time.now.to_s }
-
   factory :customer do
-    api_key token.call
+    sequence(:api_key) { SecureRandom.hex }
   end
 end
 

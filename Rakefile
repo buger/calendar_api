@@ -5,7 +5,7 @@ require "mongo_mapper"
 require "grape"
 
 Dir.glob('lib/models/**/*.rb') { |f| require File.expand_path(f) }
-require File.expand_path("lib/api/validators.rb")
+require File.expand_path("lib/api/application_api.rb")
 Dir.glob('lib/api/**/*.rb') { |f| require File.expand_path(f) }
 
 desc "Displays routes"

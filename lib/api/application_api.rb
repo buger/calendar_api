@@ -12,9 +12,17 @@ class CalendarAPI < Grape::API
   end
 
   helpers do
-    def location_for(resource)
-      File.join @env["PATH_INFO"], resource.id
+    def current_user
+      @current_user ||= Customer.authorize!(params.api_key)
     end
+
+    def authenticate!
+      error!('401 Unauthorized', 401) unless current_user
+    end
+  end
+
+  before do
+    authenticate!
   end
 end
 
