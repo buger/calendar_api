@@ -4,7 +4,6 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require "mongo_mapper"
 require "grape"
 
-Dir.glob('lib/models/**/*.rb') { |f| require File.expand_path(f) }
 require File.expand_path("lib/api/application_api.rb")
 Dir.glob('lib/api/**/*.rb') { |f| require File.expand_path(f) }
 
