@@ -29,7 +29,7 @@ class CalendarAPI < Grape::API
             if event.save
               event
             else
-              error!({ :errors => event.errors.messages }, 401)
+              attributes_error(event)
             end
           else
             not_found
@@ -58,7 +58,7 @@ class CalendarAPI < Grape::API
             if event.update_attributes(params.slice(:title, :description, :start, :end, :color))
               event
             else
-              error!({ :errors => event.errors.messages }, 401)
+              attributes_error(event)
             end
           else
             not_found
