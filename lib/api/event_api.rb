@@ -24,7 +24,7 @@ class CalendarAPI < Grape::API
         end
         post do
           calendar = Calendar.find(params.calendar_ids)
-          if calendar && current_user.has?(calendar)
+          if can?(calendar)
             event = calendar.events.build(params.slice(:title, :description, :start, :end, :color))
             if event.save
               event
@@ -38,7 +38,7 @@ class CalendarAPI < Grape::API
 
         get ":id" do
           event = Event.find(params.id)
-          if event && event.is_accessible?(current_user, params)
+          if can?(event)
             event
           else
             not_found
@@ -54,7 +54,7 @@ class CalendarAPI < Grape::API
         end
         put ":id" do
           event = Event.find(params.id)
-          if event && event.is_accessible?(current_user, params)
+          if can?(event)
             if event.update_attributes(params.slice(:title, :description, :start, :end, :color))
               event
             else
@@ -67,7 +67,7 @@ class CalendarAPI < Grape::API
 
         delete ":id" do
           event = Event.find(params.id)
-          if event && event.is_accessible?(current_user, params)
+          if can?(event)
             event.delete
           else
             not_found

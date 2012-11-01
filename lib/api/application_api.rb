@@ -20,6 +20,10 @@ class CalendarAPI < Grape::API
       error!('401 Unauthorized', 401) unless current_user
     end
 
+    def can?(resource)
+      resource && resource.is_accessible?(current_user, params)
+    end
+
     def not_found
       error!({ :errors => "Not Found" }, 404)
     end

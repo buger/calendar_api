@@ -17,5 +17,9 @@ class Calendar
   def serializable_hash(options = {})
     super({:only => ["title", "description"]}.merge(options))
   end
+
+  def is_accessible?(current_user, params = nil)
+    current_user.has?(self)
+  end
 end
 

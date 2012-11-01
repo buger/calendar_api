@@ -19,7 +19,7 @@ class CalendarAPI < Grape::API
 
     get ":id" do
       calendar = Calendar.find(params.id)
-      if calendar && current_user.has?(calendar)
+      if can?(calendar)
         calendar
       else
         not_found
@@ -32,7 +32,7 @@ class CalendarAPI < Grape::API
     end
     put ":id" do
       calendar = Calendar.find(params.id)
-      if calendar && current_user.has?(calendar)
+      if can?(calendar)
         if calendar.update_attributes(params.slice(:title, :description))
           calendar
         else
@@ -45,7 +45,7 @@ class CalendarAPI < Grape::API
 
     delete ":id" do
       calendar = Calendar.find(params.id)
-      if calendar && current_user.has?(calendar)
+      if can?(calendar)
         calendar.delete
       else
         not_found
