@@ -53,6 +53,10 @@ class Event
     events.to_a
   end
 
+  def is_accessible?(current_user, params)
+    current_user.has?(self) && calendar_id.to_s == params.calendar_ids
+  end
+
   private
 
   def self.valid_time_range?(params)
