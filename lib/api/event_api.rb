@@ -11,7 +11,7 @@ class CalendarAPI < Grape::API
           if events.any?
             events.to_json
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
@@ -32,7 +32,7 @@ class CalendarAPI < Grape::API
               error!({ :errors => event.errors.messages }, 401)
             end
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
@@ -41,7 +41,7 @@ class CalendarAPI < Grape::API
           if event && current_user.has?(event) && event.calendar_id.to_s == params.calendar_ids
             event
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
@@ -61,7 +61,7 @@ class CalendarAPI < Grape::API
               error!({ :errors => event.errors.messages }, 401)
             end
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
@@ -70,7 +70,7 @@ class CalendarAPI < Grape::API
           if event && current_user.has?(event) && event.calendar_id.to_s == params.calendar_ids
             event.delete
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
       end

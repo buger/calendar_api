@@ -19,6 +19,10 @@ class CalendarAPI < Grape::API
     def authenticate!
       error!('401 Unauthorized', 401) unless current_user
     end
+
+    def not_found
+      error!({ :errors => "Not Found" }, 404)
+    end
   end
 
   before do

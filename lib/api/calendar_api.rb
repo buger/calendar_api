@@ -22,7 +22,7 @@ class CalendarAPI < Grape::API
       if calendar && current_user.has?(calendar)
         calendar
       else
-        error!({ :errors => "Not Found" }, 404)
+        not_found
       end
     end
 
@@ -39,7 +39,7 @@ class CalendarAPI < Grape::API
           error!({ :errors => calendar.errors.messages }, 401)
         end
       else
-        error!({ :errors => "Not Found" }, 404)
+        not_found
       end
     end
 
@@ -48,7 +48,7 @@ class CalendarAPI < Grape::API
       if calendar && current_user.has?(calendar)
         calendar.delete
       else
-        error!({ :errors => "Not Found" }, 404)
+        not_found
       end
     end
   end
