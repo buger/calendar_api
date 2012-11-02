@@ -75,8 +75,7 @@ describe CalendarAPI do
 
       it "returns an error if 'id' is invalid" do
         get "/calendars/1234124234?#{api_key}"
-        last_response.status.should == 404
-        last_response.body.should == { :errors => "Not Found" }.to_json
+        should response_with_error(404, "Not Found")
       end
     end
 
@@ -100,8 +99,7 @@ describe CalendarAPI do
       context "when parameters are invalid" do
         it "returns an error if 'id' if invalid" do
           put "/calendars/123213123?#{api_key}", new_params
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
         end
 
         it "returns an error if 'title' is blank" do
@@ -147,8 +145,7 @@ describe CalendarAPI do
 
       it "returns an error if 'id' is invalid" do
         delete "/calendars/21312312312?#{api_key}"
-        last_response.status.should == 404
-        last_response.body.should == { :errors => "Not Found" }.to_json
+        should response_with_error(404, "Not Found")
       end
     end
   end

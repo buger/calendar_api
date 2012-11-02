@@ -25,7 +25,7 @@ class CalendarAPI < Grape::API
     end
 
     def not_found
-      error!({ :errors => "Not Found" }, 404)
+      error!({ :error => "Not Found" }, 404)
     end
 
     def attributes_error(resource)

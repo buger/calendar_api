@@ -28,8 +28,7 @@ describe CalendarAPI do
     context "without the time filter" do
       it "returns an error message if 'id' is invalid" do
         get "/calendars/1231231232423,1231231232432?#{api_key}"
-        last_response.status.should == 404
-        last_response.body.should == { :errors => "Not Found" }.to_json
+        should response_with_error(404, "Not Found")
       end
 
       it "returns all the events for a single calendar" do
@@ -55,8 +54,7 @@ describe CalendarAPI do
       it "returns an error if 'start' is more than 'end'" do
         time_scope = {:start => 3.days.ago.to_i, :end => 7.days.ago.to_i}.to_query
         get "calendars/#{calendar1.id},#{calendar3.id}/events?#{time_scope}&#{api_key}"
-        last_response.status.should == 404
-        last_response.body.should == { :errors => "Not Found" }.to_json
+        should response_with_error(404, "Not Found")
       end
 
       it "returns an error if 'end' is not a number" do
@@ -112,8 +110,7 @@ describe CalendarAPI do
 
     it "returns an error if calendar is not found" do
       post "/calendars/1232131/events?#{api_key}", event_attrs
-      last_response.status.should == 404
-      last_response.body.should == { :errors => "Not Found" }.to_json
+      should response_with_error(404, "Not Found")
       Event.count.should == 0
     end
 
@@ -177,14 +174,12 @@ describe CalendarAPI do
 
     it "returns an error if 'calendar_id is not valid'" do
       get "/calendars/12312312/events/#{event.id}?#{api_key}"
-      last_response.status.should == 404
-      last_response.body.should == { :errors => "Not Found" }.to_json
+      should response_with_error(404, "Not Found")
     end
 
     it "returns an error if 'id' is not valid" do
       get "/calendars/#{calendar.id}/events/123123123?#{api_key}"
-      last_response.status.should == 404
-      last_response.body.should == { :errors => "Not Found" }.to_json
+      should response_with_error(404, "Not Found")
     end
 
     it "returns an event" do
@@ -202,14 +197,12 @@ describe CalendarAPI do
 
     it "returns an error if 'calendar_id' is not valid" do
       put "/calendars/12312312/events/#{event.id}?#{api_key}"
-      last_response.status.should == 404
-      last_response.body.should == { :errors => "Not Found" }.to_json
+      should response_with_error(404, "Not Found")
     end
 
     it "returns an error if 'id' is not valid" do
       put "/calendars/#{calendar.id}/events/#{"a"*24}?#{api_key}"
-      last_response.status.should == 404
-      last_response.body.should == { :errors => "Not Found" }.to_json
+      should response_with_error(404, "Not Found")
     end
 
     it "returns an error if 'title' is blank" do
@@ -261,15 +254,13 @@ describe CalendarAPI do
 
     it "returns an error if 'calendar_id' is not valid" do
       delete "/calendars/12312312/events/#{event.id}?#{api_key}"
-      last_response.status.should == 404
-      last_response.body.should == { :errors => "Not Found" }.to_json
+      should response_with_error(404, "Not Found")
       Event.count.should == 1
     end
 
     it "returns an error if 'id' is not valid" do
       delete "/calendars/#{calendar.id}/events/#{"a"*24}?#{api_key}"
-      last_response.status.should == 404
-      last_response.body.should == { :errors => "Not Found" }.to_json
+      should response_with_error(404, "Not Found")
       Event.count.should == 1
     end
 

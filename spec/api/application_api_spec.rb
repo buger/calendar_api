@@ -22,13 +22,11 @@ describe CalendarAPI do
 
       it "requires api key" do
         get "/calendars"
-        last_response.status.should == 401
-        last_response.body.should == { :error => "401 Unauthorized" }.to_json
+        should response_with_error(401, "401 Unauthorized")
 
         api_key = { :api_key => "value" }.to_query
         get "/calendars?#{api_key}"
-        last_response.status.should == 401
-        last_response.body.should == { :error => "401 Unauthorized" }.to_json
+        should response_with_error(401, "401 Unauthorized")
       end
 
       context "calendar" do
@@ -47,8 +45,7 @@ describe CalendarAPI do
         it "doesn't allow the user to read other user's calendar" do
           api_key = { :api_key => customer1.api_key }.to_query
           get "/calendars/#{calendar2.id}?#{api_key}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           api_key = { :api_key => customer2.api_key }.to_query
           get "/calendars/#{calendar2.id}?#{api_key}"
@@ -57,8 +54,7 @@ describe CalendarAPI do
 
           api_key = { :api_key => customer2.api_key }.to_query
           get "/calendars/#{calendar1.id}?#{api_key}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           api_key = { :api_key => customer1.api_key }.to_query
           get "/calendars/#{calendar1.id}?#{api_key}"
@@ -69,8 +65,7 @@ describe CalendarAPI do
         it "doesn't allow the user to edit other user's calendar" do
           api_key = { :api_key => customer1.api_key }.to_query
           put "/calendars/#{calendar2.id}?#{api_key}", attributes_for(:calendar).slice(:title)
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
           calendar2.reload
           calendar2.title.should == attrs2[:title]
 
@@ -84,8 +79,7 @@ describe CalendarAPI do
 
           api_key = { :api_key => customer2.api_key }.to_query
           put "/calendars/#{calendar1.id}?#{api_key}", attributes_for(:calendar).slice(:title)
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
           calendar1.reload
           calendar1.title.should == attrs1[:title]
 
@@ -101,8 +95,7 @@ describe CalendarAPI do
         it "doesn't allow the user to destroy other user's calendar" do
           api_key = { :api_key => customer1.api_key }.to_query
           delete "/calendars/#{calendar2.id}?#{api_key}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           api_key = { :api_key => customer2.api_key }.to_query
           delete "/calendars/#{calendar2.id}?#{api_key}"
@@ -111,8 +104,7 @@ describe CalendarAPI do
 
           api_key = { :api_key => customer2.api_key }.to_query
           delete "/calendars/#{calendar1.id}?#{api_key}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           api_key = { :api_key => customer1.api_key }.to_query
           delete "/calendars/#{calendar1.id}?#{api_key}"
@@ -134,12 +126,10 @@ describe CalendarAPI do
 
         it "doesn't allow the user to search for events in other user's calendar(s)" do
           get "/calendars/#{calendar2.id}/events?#{api_key1}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           get "/calendars/#{calendar1.id}/events?#{api_key2}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           get "/calendars/#{calendar2.id},#{calendar1.id}/events?#{api_key1}"
           last_response.status.should == 200
@@ -152,12 +142,10 @@ describe CalendarAPI do
 
         it "doesn't allow the user to create events in other user's calendars" do
           post "/calendars/#{calendar1.id}/events?#{api_key2}", attributes_for(:event)
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           post "/calendars/#{calendar2.id}/events?#{api_key1}", attributes_for(:event)
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           attrs = attributes_for(:event)
           post "/calendars/#{calendar2.id}/events?#{api_key2}", attrs
@@ -172,20 +160,17 @@ describe CalendarAPI do
 
         it "doesn't allow the user to read event in other user's calendar" do
           get "/calendars/#{calendar1.id}/events/#{event1.id}?#{api_key2}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           get "/calendars/#{calendar1.id}/events/#{event2.id}?#{api_key2}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           get "/calendars/#{calendar1.id}/events/#{event2.id}?#{api_key1}"
           last_response.status.should == 200
           last_response.body.should contain_events(event_attrs2)
 
           get "/calendars/#{calendar2.id}/events/#{event3.id}?#{api_key1}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           get "/calendars/#{calendar2.id}/events/#{event3.id}?#{api_key2}"
           last_response.status.should == 200
@@ -195,8 +180,7 @@ describe CalendarAPI do
         it "doesn't allow the user to edit event in other user's calendar" do
           new_attrs = attributes_for(:event)
           put "/calendars/#{calendar1.id}/events/#{event1.id}?#{api_key2}", new_attrs
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           new_attrs = attributes_for(:event)
           put "/calendars/#{calendar1.id}/events/#{event1.id}?#{api_key1}", new_attrs
@@ -206,12 +190,10 @@ describe CalendarAPI do
 
         it "doesn't allow the user to destroy event in other user's calendar" do
           delete "/calendars/#{calendar1.id}/events/#{event1.id}?#{api_key2}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           delete "/calendars/#{calendar2.id}/events/#{event2.id}?#{api_key1}"
-          last_response.status.should == 404
-          last_response.body.should == { :errors => "Not Found" }.to_json
+          should response_with_error(404, "Not Found")
 
           expect do
             delete "/calendars/#{calendar1.id}/events/#{event1.id}?#{api_key1}"
