@@ -1,7 +1,10 @@
+require 'securerandom'
+
 FactoryGirl.define do
   factory :calendar do
     sequence(:title) { |n| "title #{n}" }
-    sequence(:owner_id) { |n| "id#{n}" }
+    
+    customer
   end
 
   start_at = proc { rand(11..20).days.ago.to_i }
@@ -9,10 +12,15 @@ FactoryGirl.define do
 
   factory :event do
     sequence(:title) { |n| "title #{n}" }
-    start start_at.call
-    send(:end, end_at.call)
+
+    sequence(:start) { start_at.call }
+    sequence(:end)   { start_at.call }
 
     calendar
+  end
+
+  factory :customer do
+    sequence(:api_key) { SecureRandom.hex }
   end
 end
 

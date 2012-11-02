@@ -1,10 +1,7 @@
 class CalendarAPI < Grape::API
-  format :json
-  error_format :json
-
   resource :calendars do
     get do
-      Calendar.all
+      Calendar.for_customer(current_user).all
     end
 
     params do
@@ -12,20 +9,20 @@ class CalendarAPI < Grape::API
       optional :description, :length_lt => 1000, :type => String
     end
     post do
-      calendar = Calendar.new(params.slice(:title, :description))
+      calendar = current_user.calendars.build(params.slice(:title, :description))
       if calendar.save
-        header("Location", location_for(calendar))
         calendar
       else
-        error!({ :errors => calendar.errors.messages }, 401)
+        attributes_error(calendar)
       end
     end
 
     get ":id" do
-      if calendar = Calendar.find(params.id)
+      calendar = Calendar.find(params.id)
+      if can?(calendar)
         calendar
       else
-        error!({ :errors => "Not Found" }, 404)
+        not_found
       end
     end
 
@@ -34,22 +31,24 @@ class CalendarAPI < Grape::API
       optional :description, :length_lt => 1000, :type => String
     end
     put ":id" do
-      if calendar = Calendar.find(params.id)
+      calendar = Calendar.find(params.id)
+      if can?(calendar)
         if calendar.update_attributes(params.slice(:title, :description))
           calendar
         else
-          error!({ :errors => calendar.errors.messages }, 401)
+          attributes_error(calendar)
         end
       else
-        error!({ :errors => "Not Found" }, 404)
+        not_found
       end
     end
 
     delete ":id" do
-      if calendar = Calendar.find(params.id)
+      calendar = Calendar.find(params.id)
+      if can?(calendar)
         calendar.delete
       else
-        error!({ :errors => "Not Found" }, 404)
+        not_found
       end
     end
   end
