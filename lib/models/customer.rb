@@ -7,11 +7,7 @@ class Customer
 
   many :calendars
 
-  before_validation do
-    self.api_key = SecureRandom.hex
-  end
-
-  validates_uniqueness_of :api_key
+  before_create :generate_api_key
 
   def has?(resource)
     self == resource.customer
@@ -19,6 +15,14 @@ class Customer
 
   def self.authorize!(api_key)
     Customer.find_by_api_key(api_key)
+  end
+
+  private
+
+  def generate_api_key
+    begin 
+      self.api_key = SecureRandom.hex
+    end while Customer.find_by_api_key(api_key)
   end
 end
 
