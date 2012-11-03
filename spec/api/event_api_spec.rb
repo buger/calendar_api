@@ -188,7 +188,6 @@ describe CalendarAPI do
         last_response.header["Content-Type"].should == "text/calendar"
         last_response.body[/^DTEND\:(.+)?$/]
         DateTime.parse($1.strip).to_i.should == event.end.to_i
-
         last_response.body[/^DTSTART\:(.+)?$/]
         DateTime.parse($1.strip).to_i.should == event.start.to_i
       end

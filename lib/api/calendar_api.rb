@@ -21,8 +21,7 @@ class CalendarAPI < Grape::API
       calendar = Calendar.find(params.id)
       if can?(calendar)
         if params.format == "ical"
-          header("Content-Type", "text/calendar")
-          IcalendarEvents.new(calendar.events).to_ical
+          calendar.to_ical
         else
           calendar
         end

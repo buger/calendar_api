@@ -58,7 +58,7 @@ class Event
   end
 
   def to_ical
-    IcalendarAPI.new(self).to_ical
+    IcalendarEvent.new(self).to_ical
   end
 
   private

@@ -21,5 +21,9 @@ class Calendar
   def is_accessible?(current_user, params = nil)
     current_user.has?(self)
   end
+
+  def to_ical
+    IcalendarEvents.new(self.events).to_ical
+  end
 end
 
