@@ -50,7 +50,7 @@ class Event
     events = for_customer(customer)
     events = events.calendars(params.calendar_ids.split(","))
     events = events.within_time(*params.values_at("start", "end")) if valid_time_range?(params)
-    events.to_a
+    IcalendarEvents.new(events)
   end
 
   def is_accessible?(current_user, params)

@@ -72,19 +72,19 @@ describe Event do
       it "returns matched events" do
         params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id}",
           :start => 6.days.ago.to_i, :end => 4.days.ago.to_i]
-        Event.search(params, customer).should == [event_2]
+        Event.search(params, customer).to_a.should == [event_2]
 
         params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}",
           :start => 5.days.ago.to_i, :end => 1.days.ago.to_i]
-        Event.search(params, customer).should == [event_2, event_4]
+        Event.search(params, customer).to_a.should == [event_2, event_4]
 
         params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}",
           :start => 9.days.ago.to_i, :end => 1.days.ago.to_i]
-        Event.search(params, customer).should == [event_1, event_2, event_3, event_4]
+        Event.search(params, customer).to_a.should == [event_1, event_2, event_3, event_4]
 
         params = Hashie::Mash[:calendar_ids => "#{calendar2.id},#{calendar3.id}",
           :start => 8.days.ago.to_i, :end => 6.days.ago.to_i]
-        Event.search(params, customer).should == [event_3]
+        Event.search(params, customer).to_a.should == [event_3]
       end
     end
   end

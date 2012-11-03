@@ -4,14 +4,27 @@ class IcalendarEvents
   include Icalendar
 
   def initialize(events)
+    @events   = events
     @calendar = Calendar.new
-    events.each do |event|
+    @events.each do |event|
       @calendar.add_event(IcalendarEvent.new(event).to_event)
     end
   end
 
+  def any?
+    @events.to_a.any?
+  end
+
+  def to_a
+    @events.to_a
+  end
+
   def to_ical
     @calendar.to_ical
+  end
+
+  def to_json
+    @events.to_a.to_json
   end
 end
 
