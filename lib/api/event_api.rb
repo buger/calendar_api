@@ -9,7 +9,12 @@ class CalendarAPI < Grape::API
         get do
           events = Event.search(params.slice(:calendar_ids, :start, :end), current_user)
           if events.any?
-            events.to_json
+            if params.format == "ical"
+              header("Content-Type", "text/calendar")
+              IcalendarEvents.new(events).to_ical
+            else
+              events
+            end
           else
             not_found
           end
@@ -39,7 +44,12 @@ class CalendarAPI < Grape::API
         get ":id" do
           event = Event.find(params.id)
           if can?(event)
-            event
+            if params.format == "ical"
+              header("Content-Type", "text/calendar")
+              IcalendarEvent.new(event).to_ical
+            else
+              event
+            end
           else
             not_found
           end

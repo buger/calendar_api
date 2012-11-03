@@ -25,6 +25,15 @@ describe CalendarAPI do
     let!(:event3) { create(:event, event_attrs3.merge(:calendar => calendar2)) }
     let!(:event4) { create(:event, event_attrs4.merge(:calendar => calendar3)) }
 
+    context "GET /calendars/:ids/events" do
+      it "returns the events in .ical format" do
+        get "/calendars/#{calendar1.id},#{calendar3.id}/events.ical?#{api_key}"
+        last_response.status.should == 200
+        last_response.header["Content-Type"].should == "text/calendar"
+        Icalendar.parse(last_response.body).first.events.size.should == 3
+      end
+    end
+
     context "without the time filter" do
       it "returns an error message if 'id' is invalid" do
         get "/calendars/1231231232423,1231231232432?#{api_key}"
@@ -171,6 +180,19 @@ describe CalendarAPI do
     let!(:calendar) { create(:calendar, :customer => customer) }
     let!(:event_attrs) { attributes_for(:event) }
     let!(:event) { create(:event, event_attrs.merge(:calendar => calendar)) }
+
+    describe "GET /calendars/:calendar_id/events/:id.ical" do
+      it "returns the event in .ical format" do
+        get "/calendars/#{calendar.id}/events/#{event.id}.ical?#{api_key}"
+        last_response.status.should == 200
+        last_response.header["Content-Type"].should == "text/calendar"
+        last_response.body[/^DTEND\:(.+)?$/]
+        DateTime.parse($1.strip).to_i.should == event.end.to_i
+
+        last_response.body[/^DTSTART\:(.+)?$/]
+        DateTime.parse($1.strip).to_i.should == event.start.to_i
+      end
+    end
 
     it "returns an error if 'calendar_id is not valid'" do
       get "/calendars/12312312/events/#{event.id}?#{api_key}"

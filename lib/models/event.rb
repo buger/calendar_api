@@ -57,6 +57,10 @@ class Event
     current_user.has?(self) && calendar_id.to_s == params.calendar_ids
   end
 
+  def to_ical
+    IcalendarAPI.new(self).to_ical
+  end
+
   private
 
   def self.valid_time_range?(params)

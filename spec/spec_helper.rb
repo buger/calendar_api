@@ -15,6 +15,7 @@ require "pry-remote"
 MongoMapper.database = "calendar_api"
 
 Dir.glob('spec/support/**/*.rb') { |f| require File.expand_path(f) }
+Dir.glob('lib/lib/**/*.rb') { |f| require File.expand_path(f) }
 Dir.glob('lib/models/**/*.rb') { |f| require File.expand_path(f) }
 require File.expand_path("lib/api/application_api.rb")
 Dir.glob('lib/api/**/*.rb') { |f| require File.expand_path(f) }

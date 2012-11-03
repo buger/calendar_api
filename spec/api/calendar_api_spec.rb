@@ -1,4 +1,5 @@
 require "spec_helper.rb"
+require "icalendar"
 
 describe CalendarAPI do
   include Rack::Test::Methods
@@ -77,8 +78,20 @@ describe CalendarAPI do
         get "/calendars/1234124234?#{api_key}"
         should response_with_error(404, "Not Found")
       end
-    end
 
+      describe "GET /calendars/:id.ical" do
+        let!(:event_1) { create(:event, :calendar => calendar, :start => 9.days.ago, :end => 5.days.ago) }
+        let!(:event_2) { create(:event, :calendar => calendar, :start => 6.days.ago, :end => 3.days.ago) }
+
+        it "returns the calendar in .ical format" do
+          get "/calendars/#{calendar.id}.ical?#{api_key}"
+          last_response.status.should == 200
+          last_response.header["Content-Type"].should == "text/calendar"
+          Icalendar.parse(last_response.body).first.events.size.should == calendar.events.size
+        end
+      end
+    end
+    
     describe "PUT /calendars/:id" do
       let(:origin_params) { attributes_for(:calendar) }
       let(:new_params) { attributes_for(:calendar, :description => "q") }
