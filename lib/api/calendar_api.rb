@@ -20,11 +20,7 @@ class CalendarAPI < Grape::API
     get ":id" do
       calendar = Calendar.find(params.id)
       if can?(calendar)
-        if params.format == "ical"
-          calendar.to_ical
-        else
-          calendar
-        end
+        calendar
       else
         not_found
       end
