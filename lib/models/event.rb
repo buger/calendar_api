@@ -9,13 +9,18 @@ class Event
   key :end,          Time
 
   key :color,        String
-  key :owner_id,     ObjectId
+  key :customer_id,  ObjectId
 
   belongs_to :calendar
+  belongs_to :customer
 
   validates_presence_of :title
 
   attr_accessible :title, :description, :start, :end, :color
+
+  before_save do
+    self.customer = calendar.customer
+  end
 
   def serializable_hash(options = {})
     super({:only => [:title, :description, :start, :end, :color]}.merge(options))
@@ -29,7 +34,11 @@ class Event
     instance_variable_set(:@end, Time.at(time_in_numbers))
   end
 
-  scope :calendars, lambda { |ids| 
+  scope :for_customer, lambda { |customer|
+    where(:customer_id => customer.id.to_s)
+  }
+
+  scope :calendars, lambda { |ids|
     where(:calendar_id.in => ids)
   }
 
@@ -37,16 +46,25 @@ class Event
     where(:start.gt => Time.at(start_at) - 1.day, :end.lt => Time.at(end_at) + 1.day)
   }
 
-  def self.search(params)
-    events = calendars(params.calendar_ids.split(","))
+  def self.search(params, customer)
+    events = for_customer(customer)
+    events = events.calendars(params.calendar_ids.split(","))
     events = events.within_time(*params.values_at("start", "end")) if valid_time_range?(params)
-    events.to_a
+    IcalendarEvents.new(events)
+  end
+
+  def is_accessible?(current_user, params)
+    current_user.has?(self) && calendar_id.to_s == params.calendar_ids
+  end
+
+  def to_ical
+    IcalendarEvent.new(self).to_ical
   end
 
   private
 
   def self.valid_time_range?(params)
-    params.start && params.end # && Time.at(params.start) <= Time.at(params.end)
+    params.start && params.end
   end
 end
 
