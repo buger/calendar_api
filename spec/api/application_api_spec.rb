@@ -39,7 +39,7 @@ describe CalendarAPI do
           api_key = { :api_key => customer2.api_key }.to_query
           get "/calendars?#{api_key}"
           last_response.status.should == 200
-          last_response.body.should == [attrs2, attrs3].to_json
+          last_response.body.should contain_calendars_in_json(attrs3, attrs2)
         end
         
         it "doesn't allow the user to read other user's calendar" do
@@ -71,7 +71,7 @@ describe CalendarAPI do
 
           new_attrs = attributes_for(:calendar)
           api_key = { :api_key => customer2.api_key }.to_query
-          put "/calendars/#{calendar2.id}?#{api_key}", new_attrs.slice(:title)
+          put "/calendars/#{calendar2.id}?#{api_key}", new_attrs.slice(:country, :title)
           last_response.status.should == 200
           last_response.body.should == new_attrs.to_json
           calendar2.reload
@@ -85,7 +85,7 @@ describe CalendarAPI do
 
           new_attrs = attributes_for(:calendar)
           api_key = { :api_key => customer1.api_key }.to_query
-          put "/calendars/#{calendar1.id}?#{api_key}", new_attrs.slice(:title)
+          put "/calendars/#{calendar1.id}?#{api_key}", new_attrs.slice(:country, :title)
           last_response.status.should == 200
           last_response.body.should == new_attrs.to_json
           calendar1.reload

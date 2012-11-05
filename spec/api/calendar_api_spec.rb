@@ -19,7 +19,7 @@ describe CalendarAPI do
       it "returns all the calendars" do
         get "/calendars?#{api_key}"
         last_response.status.should == 200
-        last_response.body.should == [params1.slice(:title)].to_json
+        last_response.body.should == [params1.slice(:country, :title)].to_json
       end
     end
 
@@ -30,7 +30,7 @@ describe CalendarAPI do
         it "creates a new calendar" do
           post "/calendars?#{api_key}", params
           last_response.status.should == 201
-          last_response.body.should == params.slice(:title).to_json
+          last_response.body.should == params.slice(:country, :title).to_json
           Calendar.count.should == 1
           Calendar.last.customer_id.should_not == params[:customer_id]
           Calendar.last.id.should_not == params[:id]
@@ -71,7 +71,7 @@ describe CalendarAPI do
       it "returns the calendar" do
         get "/calendars/#{calendar.id}?#{api_key}"
         last_response.status.should == 200
-        last_response.body.should == Hash[params.slice(:title, :description).sort].to_json
+        last_response.body.should == Hash[params.slice(:country, :description, :title).sort].to_json
       end
 
       it "returns an error if 'id' is invalid" do
@@ -101,7 +101,7 @@ describe CalendarAPI do
         it "updates the object" do
           put "/calendars/#{calendar.id}?#{api_key}", new_params
           last_response.status.should == 200
-          last_response.body.should == new_params.slice(:description, :title).to_json
+          last_response.body.should == new_params.slice(:country, :description, :title).to_json
 
           calendar.reload
           calendar.title.should == new_params[:title]
