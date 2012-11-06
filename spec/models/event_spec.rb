@@ -34,56 +34,56 @@ describe Event do
       end
 
       it "ignores the data which doesn't belong to the current user" do
-        params = Hashie::Mash[:calendar_ids => calendar2.id.to_s]
+        params = mash(:calendar_ids => calendar2.id.to_s)
         Event.search(params, customer2).to_a.should == []
 
-        params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}"]
+        params = mash(:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}")
         Event.search(params, customer2).to_a.should == []
 
-        params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id},#{calendar4.id}"]
+        params = mash(:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id},#{calendar4.id}")
         Event.search(params, customer2).to_a.should == [ event_5, event_6 ]
 
-        params = Hashie::Mash[:calendar_ids => calendar4.id.to_s]
+        params = mash(:calendar_ids => calendar4.id.to_s)
         Event.search(params, customer).to_a.should == []
 
-        params = Hashie::Mash[:calendar_ids => calendar4.id.to_s]
+        params = mash(:calendar_ids => calendar4.id.to_s)
         Event.search(params, customer2).to_a.should == [ event_5, event_6 ]
       end
     end
 
     context "without the time filter" do
       it "returns matched events for multiple calendars" do
-        params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar3.id}"]
+        params = mash(:calendar_ids => "#{calendar1.id},#{calendar3.id}")
         Event.search(params, customer).to_a.should == [ event_1, event_2, event_4 ]
       end
 
       it "returns matched events for a signle calendar" do
-        params = Hashie::Mash[:calendar_ids => calendar2.id.to_s]
+        params = mash(:calendar_ids => calendar2.id.to_s)
         Event.search(params, customer).to_a.should == [ event_3 ]
       end
 
       it "returns an empty array if nothing has been found" do
-        params = Hashie::Mash[:calendar_ids => "123123123131"]
+        params = mash(:calendar_ids => "123123123131")
         Event.search(params, customer).to_a.should == []
       end
     end
 
     context "with the time filter" do
       it "returns matched events" do
-        params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id}",
-          :start => 6.days.ago.to_i, :end => 4.days.ago.to_i]
+        params = mash(:calendar_ids => "#{calendar1.id},#{calendar2.id}",
+          :start => 6.days.ago.to_i, :end => 4.days.ago.to_i)
         Event.search(params, customer).to_a.should == [event_2]
 
-        params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}",
-          :start => 5.days.ago.to_i, :end => 1.days.ago.to_i]
+        params = mash(:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}",
+          :start => 5.days.ago.to_i, :end => 1.days.ago.to_i)
         Event.search(params, customer).to_a.should == [event_2, event_4]
 
-        params = Hashie::Mash[:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}",
-          :start => 9.days.ago.to_i, :end => 1.days.ago.to_i]
+        params = mash(:calendar_ids => "#{calendar1.id},#{calendar2.id},#{calendar3.id}",
+          :start => 9.days.ago.to_i, :end => 1.days.ago.to_i)
         Event.search(params, customer).to_a.should == [event_1, event_2, event_3, event_4]
 
-        params = Hashie::Mash[:calendar_ids => "#{calendar2.id},#{calendar3.id}",
-          :start => 8.days.ago.to_i, :end => 6.days.ago.to_i]
+        params = mash(:calendar_ids => "#{calendar2.id},#{calendar3.id}",
+          :start => 8.days.ago.to_i, :end => 6.days.ago.to_i)
         Event.search(params, customer).to_a.should == [event_3]
       end
     end

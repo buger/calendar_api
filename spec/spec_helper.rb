@@ -19,6 +19,7 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].sort.each { |f| require f }
 require "factories"
 
 RSpec.configure do |config|
+  config.include RSpec::Helpers
   config.include RSpec::CustomMatchers
 
   config.include Rack::Test::Methods

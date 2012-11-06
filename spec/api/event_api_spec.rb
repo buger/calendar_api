@@ -43,13 +43,13 @@ describe CalendarAPI do
       it "returns all the events for a single calendar" do
         get "/calendars/#{calendar1.id}/events?#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs1, event_attrs2)
+        last_response.body.should contain_events_in_json(event_attrs1, event_attrs2)
       end
 
       it "returns all the events for multiple calendars" do
         get "/calendars/#{calendar1.id},#{calendar3.id}/events?#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs1, event_attrs2, event_attrs4)
+        last_response.body.should contain_events_in_json(event_attrs1, event_attrs2, event_attrs4)
       end
     end
 
@@ -76,39 +76,39 @@ describe CalendarAPI do
         time_scope = {:start => 6.days.ago.to_i, :end => 3.days.ago.to_i}.to_query
         get "calendars/#{calendar1.id}/events?#{time_scope}&#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs2)
+        last_response.body.should contain_events_in_json(event_attrs2)
 
         time_scope = {:start => 7.days.ago.to_i, :end => 3.days.ago.to_i}.to_query
         get "calendars/#{calendar3.id}/events?#{time_scope}&#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs4)
+        last_response.body.should contain_events_in_json(event_attrs4)
 
         time_scope = {:start => 7.days.ago.to_i, :end => 3.days.ago.to_i}.to_query
         get "calendars/#{calendar3.id}/events?#{time_scope}&#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs4)
+        last_response.body.should contain_events_in_json(event_attrs4)
       end
 
       it "returns all the events for multiple calendars" do
         time_scope = {:start => 7.days.ago.to_i, :end => 3.days.ago.to_i}.to_query
         get "calendars/#{calendar1.id},#{calendar3.id}/events?#{time_scope}&#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs2, event_attrs4)
+        last_response.body.should contain_events_in_json(event_attrs2, event_attrs4)
 
         time_scope = {:start => 5.days.ago.to_i, :end => 1.days.ago.to_i}.to_query
         get "calendars/#{calendar1.id},#{calendar2.id},#{calendar3.id}/events?#{time_scope}&#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs3)
+        last_response.body.should contain_events_in_json(event_attrs3)
 
         time_scope = {:start => 9.days.ago.to_i, :end => 4.days.ago.to_i}.to_query
         get "calendars/#{calendar1.id},#{calendar2.id},#{calendar3.id}/events?#{time_scope}&#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs1, event_attrs2)
+        last_response.body.should contain_events_in_json(event_attrs1, event_attrs2)
 
         time_scope = {:start => 9.days.ago.to_i, :end => 1.days.ago.to_i}.to_query
         get "calendars/#{calendar1.id},#{calendar2.id},#{calendar3.id}/events?#{time_scope}&#{api_key}"
         last_response.status.should == 200
-        last_response.body.should contain_events(event_attrs1, event_attrs2, event_attrs3, event_attrs4)
+        last_response.body.should contain_events_in_json(event_attrs1, event_attrs2, event_attrs3, event_attrs4)
       end
     end
   end
@@ -171,7 +171,7 @@ describe CalendarAPI do
     it "creates a new event for given calenar" do
       post "/calendars/#{calendar.id}/events?#{api_key}", event_attrs
       last_response.status.should == 201
-      last_response.body.should contain_events(event_attrs)
+      last_response.body.should contain_events_in_json(event_attrs)
       Event.last.title.should == event_attrs[:title]
     end
   end
@@ -206,7 +206,7 @@ describe CalendarAPI do
     it "returns an event" do
       get "/calendars/#{calendar.id}/events/#{event.id}?#{api_key}"
       last_response.status.should == 200
-      last_response.body.should contain_events(event_attrs)
+      last_response.body.should contain_events_in_json(event_attrs)
     end
   end
 
@@ -248,7 +248,7 @@ describe CalendarAPI do
     it "updates the event" do
       put "/calendars/#{calendar.id}/events/#{event.id}?#{api_key}", new_attrs
       last_response.status.should == 200
-      last_response.body.should contain_events(new_attrs)
+      last_response.body.should contain_events_in_json(new_attrs)
       event.reload
       event.title.should == new_attrs[:title]
       event.description.should == new_attrs[:description]

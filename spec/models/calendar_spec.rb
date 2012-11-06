@@ -6,11 +6,8 @@ describe Calendar do
     let(:calendar) { create(:calendar, :customer => customer) }
 
     it "returns ical with the holidays" do
-      calendar.with_holidays(Hashie::Mash[:holidays => true])
-
-      Icalendar.parse(calendar.to_ical).first.events.size.should ==
-      Holidays.for_country(calendar.country).size
-      calendar.to_ical
+      calendar.with_holidays(mash(:holidays => true))
+      calendar.to_ical.should contain_events_in_ical(holidays_for(calendar))
     end
 
     it "returns ical with the holidays and events" do
@@ -20,8 +17,8 @@ describe Calendar do
       calendar
       calendar.to_ical.should contain_events_in_ical(event1, event2)
 
-      calendar.with_holidays(Hashie::Mash[:holidays => true])
-      calendar.to_ical.should contain_events_in_ical(event1, event2, Holidays.for_country(calendar.country))
+      calendar.with_holidays(mash(:holidays => true))
+      calendar.to_ical.should contain_events_in_ical(event1, event2, holidays_for(calendar))
     end
   end
 end

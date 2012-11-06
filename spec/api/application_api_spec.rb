@@ -133,11 +133,11 @@ describe CalendarAPI do
 
           get "/calendars/#{calendar2.id},#{calendar1.id}/events?#{api_key1}"
           last_response.status.should == 200
-          last_response.body.should contain_events(event_attrs1, event_attrs2)
+          last_response.body.should contain_events_in_json(event_attrs1, event_attrs2)
 
           get "/calendars/#{calendar2.id},#{calendar1.id}/events?#{api_key2}"
           last_response.status.should == 200
-          last_response.body.should contain_events(event_attrs3)
+          last_response.body.should contain_events_in_json(event_attrs3)
         end
 
         it "doesn't allow the user to create events in other user's calendars" do
@@ -150,12 +150,12 @@ describe CalendarAPI do
           attrs = attributes_for(:event)
           post "/calendars/#{calendar2.id}/events?#{api_key2}", attrs
           last_response.status.should == 201
-          last_response.body.should contain_events(attrs)
+          last_response.body.should contain_events_in_json(attrs)
 
           attrs = attributes_for(:event)
           post "/calendars/#{calendar1.id}/events?#{api_key1}", attrs
           last_response.status.should == 201
-          last_response.body.should contain_events(attrs)
+          last_response.body.should contain_events_in_json(attrs)
         end
 
         it "doesn't allow the user to read event in other user's calendar" do
@@ -167,14 +167,14 @@ describe CalendarAPI do
 
           get "/calendars/#{calendar1.id}/events/#{event2.id}?#{api_key1}"
           last_response.status.should == 200
-          last_response.body.should contain_events(event_attrs2)
+          last_response.body.should contain_events_in_json(event_attrs2)
 
           get "/calendars/#{calendar2.id}/events/#{event3.id}?#{api_key1}"
           should response_with_error(404, "Not Found")
 
           get "/calendars/#{calendar2.id}/events/#{event3.id}?#{api_key2}"
           last_response.status.should == 200
-          last_response.body.should contain_events(event_attrs3)
+          last_response.body.should contain_events_in_json(event_attrs3)
         end
 
         it "doesn't allow the user to edit event in other user's calendar" do
@@ -185,7 +185,7 @@ describe CalendarAPI do
           new_attrs = attributes_for(:event)
           put "/calendars/#{calendar1.id}/events/#{event1.id}?#{api_key1}", new_attrs
           last_response.status.should == 200
-          last_response.body.should contain_events(event_attrs1.merge(new_attrs))
+          last_response.body.should contain_events_in_json(event_attrs1.merge(new_attrs))
         end
 
         it "doesn't allow the user to destroy event in other user's calendar" do

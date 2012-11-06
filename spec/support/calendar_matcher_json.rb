@@ -4,11 +4,11 @@ module RSpec
       if calendars.empty?
         raise ArgumentError, "need at least one argument"
       else
-        CalendarMatcher.new(calendars)
+        CalendarMatcherJson.new(calendars)
       end
     end
 
-    class CalendarMatcher < BaseMatcherJson
+    class CalendarMatcherJson < BaseMatcherJson
       def initialize(calendars)
         @calendars = calendars
       end

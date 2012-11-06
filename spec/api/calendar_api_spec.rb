@@ -67,6 +67,7 @@ describe CalendarAPI do
     describe "GET /calendars/:id" do
       let(:params) { attributes_for(:calendar, :description => "q") }
       let(:calendar) { create(:calendar, params.merge(:customer => customer)) }
+      let(:calendar2) { create(:calendar, params.merge(:customer => customer)) }
 
       it "returns the calendar" do
         get "/calendars/#{calendar.id}?#{api_key}"
@@ -82,12 +83,11 @@ describe CalendarAPI do
       describe "GET /calendars/:id.ical" do
         let!(:event_1) { create(:event, :calendar => calendar, :start => 9.days.ago, :end => 5.days.ago) }
         let!(:event_2) { create(:event, :calendar => calendar, :start => 6.days.ago, :end => 3.days.ago) }
+        let!(:event_3) { create(:event, :calendar => calendar2, :start => 7.days.ago, :end => 1.days.ago) }
 
         it "returns the calendar in .ical format" do
           get "/calendars/#{calendar.id}.ical?#{api_key}"
-          last_response.status.should == 200
-          last_response.header["Content-Type"].should == "text/calendar"
-          Icalendar.parse(last_response.body).first.events.size.should == calendar.events.size
+          should respond_with_calendar_in_ical(calendar)
         end
       end
     end
