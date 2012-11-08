@@ -5,8 +5,8 @@ class Event
   key :title,        String
   key :description,  String
 
-  key :start,        Time
-  key :end,          Time
+  key :dtstart,      Time
+  key :dtend,        Time
 
   key :color,        String
   key :customer_id,  ObjectId
@@ -23,15 +23,23 @@ class Event
   end
 
   def serializable_hash(options = {})
-    super({:only => [:title, :description, :start, :end, :color]}.merge(options))
+    super({:only => [:title, :description, :dtstart, :dtend, :color]}.merge(options))
   end
 
   def start=(time_in_numbers)
-    @start = Time.at(time_in_numbers)
+    @dtstart = Time.at(time_in_numbers)
   end
 
   def end=(time_in_numbers)
-    instance_variable_set(:@end, Time.at(time_in_numbers))
+    @dtend = Time.at(time_in_numbers)
+  end
+
+  def dtstart
+    @dtstart.utc
+  end
+
+  def dtend
+    @dtend.utc
   end
 
   scope :for_customer, lambda { |customer|
@@ -42,8 +50,8 @@ class Event
     where(:calendar_id.in => ids)
   }
 
-  scope :within_time, lambda { |start_at, end_at|
-    where(:start.gt => Time.at(start_at) - 1.day, :end.lt => Time.at(end_at) + 1.day)
+  scope :within_time, lambda { |dtstart, dtend|
+    where(:dtstart.gt => Time.at(dtstart) - 1.day, :dtend.lt => Time.at(dtend) + 1.day)
   }
 
   def self.search(params, customer)

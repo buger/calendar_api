@@ -14,11 +14,16 @@ require "pry-remote"
 
 require "boot"
 
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].sort.each { |f| require f }
+Dir["#{File.dirname(__FILE__)}/support/*.rb"].sort.each { |f| require f }
 
 require "factories"
+require "json_spec"
+require "differ"
+Differ.format = :color
 
 RSpec.configure do |config|
+  config.include JsonSpec::Helpers
+
   config.include RSpec::Helpers
   config.include RSpec::CustomMatchers
 

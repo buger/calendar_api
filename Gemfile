@@ -18,5 +18,10 @@ group :test, :development do
   gem 'pry-remote'
 
   gem 'ffaker'
+
+  gem 'json_spec'
+
+  gem 'awesome_print'
+  gem 'differ'
 end
 

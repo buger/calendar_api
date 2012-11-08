@@ -7,7 +7,7 @@ class CalendarAPI < Grape::API
   class LengthLt < Grape::Validations::SingleOptionValidator
     def validate_param!(attr_name, params)
       if params[attr_name].length >= @option
-        throw :error, :status => 401, :message => { :errors => 
+        throw :error, status: 401, message: { errors:
           { attr_name => ["must be equal or less than #{@option} characters long"] } }
       end    
     end
@@ -19,7 +19,7 @@ class CalendarAPI < Grape::API
     end
 
     def authenticate!
-      error!('401 Unauthorized', 401) unless current_user
+      error!("401 Unauthorized", 401) unless current_user
     end
 
     def can?(resource)
@@ -27,11 +27,11 @@ class CalendarAPI < Grape::API
     end
 
     def not_found
-      error!({ :error => "Not Found" }, 404)
+      error!({ errors: "Not Found" }, 404)
     end
 
     def attributes_error(resource)
-      error!({ :errors => resource.errors.messages }, 401)
+      error!({ errors: resource.errors.messages }, 401)
     end
   end
 

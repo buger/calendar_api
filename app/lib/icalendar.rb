@@ -25,8 +25,8 @@ class IcalendarEvent
 
   def initialize(record)
     @event = Event.new
-    @event.start       = parse_date(record.start)
-    @event.end         = parse_date(record.end)
+    @event.start       = parse_date(record.dtstart)
+    @event.end         = parse_date(record.dtend)
     @event.description = record.description
     @event.summary     = record.title
   end
