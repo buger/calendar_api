@@ -5,8 +5,8 @@ class Event
   key :title,        String
   key :description,  String
 
-  key :dtstart,      Time
-  key :dtend,        Time
+  key :start,        Time
+  key :end,          Time
 
   key :color,        String
   key :customer_id,  ObjectId
@@ -23,23 +23,23 @@ class Event
   end
 
   def serializable_hash(options = {})
-    super({:only => [:title, :description, :dtstart, :dtend, :color]}.merge(options))
+    super({:only => [:title, :description, :start, :end, :color]}.merge(options))
   end
 
-  def start=(time_in_numbers)
-    @dtstart = Time.at(time_in_numbers)
+  def start=(time_in_unixtimestamp)
+    @start = Time.at(time_in_unixtimestamp)
   end
 
-  def end=(time_in_numbers)
-    @dtend = Time.at(time_in_numbers)
+  def end=(time_in_unixtimestamp)
+    @end = Time.at(time_in_unixtimestamp)
   end
 
-  def dtstart
-    @dtstart.utc
+  def start
+    js_timestamp(@start)
   end
 
-  def dtend
-    @dtend.utc
+  def end
+    js_timestamp(@end)
   end
 
   scope :for_customer, lambda { |customer|
@@ -50,15 +50,15 @@ class Event
     where(:calendar_id.in => ids)
   }
 
-  scope :within_time, lambda { |dtstart, dtend|
-    where(:dtstart.gt => Time.at(dtstart) - 1.day, :dtend.lt => Time.at(dtend) + 1.day)
+  scope :within_time, lambda { |start_at, end_at|
+    where(:start.gt => Time.at(start_at) - 1.day, :end.lt => Time.at(end_at) + 1.day)
   }
 
   def self.search(params, customer)
     events = for_customer(customer)
     events = events.calendars(params.calendar_ids.split(","))
     events = events.within_time(*params.values_at("start", "end")) if valid_time_range?(params)
-    IcalendarEvents.new(events)
+    SearchResult.new(events)
   end
 
   def is_accessible?(current_user, params)
@@ -66,10 +66,14 @@ class Event
   end
 
   def to_ical
-    IcalendarEvent.new(self).to_ical
+    IcalendarRender.new(self).to_ical
   end
 
   private
+
+  def js_timestamp(time)
+    time.utc.to_i * 1000
+  end
 
   def self.valid_time_range?(params)
     params.start && params.end

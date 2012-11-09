@@ -20,7 +20,7 @@ class CalendarAPI < Grape::API
     get ":id" do
       calendar = Calendar.find(params.id)
       if can?(calendar)
-        calendar
+        calendar.with_holidays(params)
       else
         not_found
       end

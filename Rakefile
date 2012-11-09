@@ -22,9 +22,10 @@ task "ical" do
   sen = proc { Faker::Lorem.sentence[0..39] }
 
   customer = Customer.create
-  cal = customer.calendars.create(title: sen[])
+  cal = customer.calendars.create(title: sen[], country: "Russia")
   cal.events.create(title: sen[], start: 5.days.ago, :end => 1.day.ago)
   cal.events.create(title: sen[], start: 9.days.ago, :end => 8.day.ago)
   puts "http://localhost:9292/calendars/#{cal.id}?api_key=#{customer.api_key}"
+  puts "http://localhost:9292/calendars/#{cal.id}.html?api_key=#{customer.api_key}&holidays=true"
 end
 

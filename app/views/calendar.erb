@@ -1,0 +1,42 @@
+<link rel='stylesheet' type='text/css' href='./../css/fullcalendar.css' />
+<link rel='stylesheet' type='text/css' href='./../css/jquery-ui-1.9.1.custom.min.css' />
+
+<script type='text/javascript' src='./../js/jquery-1.8.1.min.js'></script> 
+<script type='text/javascript' src='./../js/jquery-ui-1.9.1.custom.min.js'></script> 
+<script type='text/javascript' src='./../js/fullcalendar.min.js'></script> 
+
+<script language="JavaScript" type="text/javascript">
+  $(document).ready(function() {
+    var date = new Date();
+    var d = date.getDate();
+    var m = date.getMonth();
+    var y = date.getFullYear();
+
+    var events = <%= @events.to_json %>
+    var events = events.map(function(e) { 
+      var n_start = new Date(parseInt(e["start"]))
+      var n_end   = new Date(parseInt(e["end"]))
+
+      return { 
+        title: e["title"],
+        start: n_start,
+        end:   n_end
+      };
+    });
+    
+    $('#calendar').fullCalendar({
+    	header: {
+    		left: 'prev,next today',
+    		center: 'title',
+    		right: 'month,agendaWeek,agendaDay'
+    	},
+    	editable: true,
+
+        events: events
+    });
+  });
+</script>
+<h1>Calendar: <%= @title %></h1>
+<h3>Description: <%= @description %></h3>
+<div id="calendar">
+</div>

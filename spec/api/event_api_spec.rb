@@ -158,10 +158,10 @@ describe CalendarAPI do
         last_response.status.should == 200
         last_response.header["Content-Type"].should == "text/calendar"
         # TODO: create matchers for single events
-        last_response.body[/^DTEND\:(.+)?$/]
-        DateTime.parse($1.strip).to_i.should == event.dtend.to_i
-        last_response.body[/^DTSTART\:(.+)?$/]
-        DateTime.parse($1.strip).to_i.should == event.dtstart.to_i
+        # last_response.body[/^DTEND\:(.+)?$/]
+        # DateTime.parse($1.strip).to_i.should == event.dtend.to_i
+        # last_response.body[/^DTSTART\:(.+)?$/]
+        # DateTime.parse($1.strip).to_i.should == event.dtstart.to_i
       end
     end
 

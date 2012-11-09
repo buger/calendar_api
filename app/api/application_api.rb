@@ -3,6 +3,7 @@ class CalendarAPI < Grape::API
   error_format :json
 
   content_type :ical, "text/calendar"
+  content_type :html, "text/html"
 
   class LengthLt < Grape::Validations::SingleOptionValidator
     def validate_param!(attr_name, params)

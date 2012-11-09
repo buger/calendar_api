@@ -27,7 +27,6 @@ module RSpec
     class ObjectMatcher
       def initialize(format, objects)
         @formatter = Formatter.new(format)
-
         @expected = objects
       end
 
@@ -106,7 +105,10 @@ module RSpec
       class IcalFormatter
         def format_expected(ical)
           ical.map do |event|
-            [event.title, normalize_time(event.dtstart), normalize_time(event.dtend)].inspect
+            [ event.title, 
+              normalize_expected_time(event.start), 
+              normalize_expected_time(event.end)
+            ].inspect
           end
         end
         
@@ -118,8 +120,8 @@ module RSpec
 
         private
 
-        def normalize_time(time)
-          DateTime.parse(time.utc.to_s)
+        def normalize_expected_time(time)
+          time.to_s
         end
       end
     end

@@ -30,7 +30,11 @@ class Calendar
   end
 
   def to_ical
-    IcalendarEvents.new(add_holidays(events)).to_ical
+    IcalendarRender.new(*add_holidays(events)).to_ical
+  end
+
+  def to_html
+    HTMLRender.new(self).render
   end
 
   private

@@ -75,9 +75,9 @@ describe CalendarAPI do
       end
 
       context ".ical" do
-        let!(:event_1) { create(:event, calendar: calendar,  dtstart: 9.days.ago, dtend: 5.days.ago) }
-        let!(:event_2) { create(:event, calendar: calendar,  dtstart: 6.days.ago, dtend: 3.days.ago) }
-        let!(:event_3) { create(:event, calendar: calendar2, dtstart: 7.days.ago, dtend: 1.days.ago) }
+        let!(:event_1) { create(:event, calendar: calendar,  start: 9.days.ago, end: 5.days.ago) }
+        let!(:event_2) { create(:event, calendar: calendar,  start: 6.days.ago, end: 3.days.ago) }
+        let!(:event_3) { create(:event, calendar: calendar2, start: 7.days.ago, end: 1.days.ago) }
 
         it "returns the calendar in .ical format" do
           get "/calendars/#{calendar.id}.ical?#{api_key}"

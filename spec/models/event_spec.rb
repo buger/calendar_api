@@ -1,6 +1,19 @@
 require "spec_helper.rb"
 
 describe Event do
+  describe "time formats" do
+    let!(:customer) { create(:customer) }
+    let!(:calendar) { create(:calendar, customer: customer) }
+    let!(:timestamp_start) { 9.days.ago.to_i }
+    let!(:timestamp_end)   { 5.days.ago.to_i }
+    let!(:event) { create(:event, calendar: calendar, start: timestamp_start, end: timestamp_end) }
+
+    it ".end and .start should be in unix timestamp format, with miliseconds (for js)" do
+      Time.at(event.start / 1000).to_i.should == timestamp_start
+      Time.at(event.end / 1000).to_i.should == timestamp_end
+    end
+  end
+
   describe ".search" do
     let!(:customer) { create(:customer) }
     let!(:customer2) { create(:customer) }
