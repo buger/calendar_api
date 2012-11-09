@@ -1,7 +1,9 @@
 require 'securerandom'
+require 'factories/countries'
 
 FactoryGirl.define do
   factory :calendar do
+    sequence(:country) { Countries.sample }
     sequence(:title) { |n| "title #{n}" }
     
     customer

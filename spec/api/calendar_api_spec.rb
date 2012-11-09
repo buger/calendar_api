@@ -10,27 +10,25 @@ describe CalendarAPI do
 
   describe CalendarAPI do
     let(:customer) { create(:customer) }
-    let(:api_key) { { :api_key => customer.api_key }.to_query }
+    let(:api_key) { { api_key: customer.api_key }.to_query }
 
     describe "GET /calendars" do
-      let(:params1) { attributes_for(:calendar) }
-      let!(:calendar1) { create(:calendar, params1.merge(:customer => customer)) }
+      let!(:calendar1) { create(:calendar, customer: customer) }
+      let!(:calendar2) { create(:calendar, customer: customer) }
 
       it "returns all the calendars" do
         get "/calendars?#{api_key}"
-        last_response.status.should == 200
-        last_response.body.should == [params1.slice(:title)].to_json
-      end
+        should respond_with_calendars(200, :json, calendar1, calendar2)
+     end
     end
 
     describe "POST /calendars" do
-      let(:params) { attributes_for(:calendar, :id => 123, :customer_id => 124) }
+      let(:params) { attributes_for(:calendar, id: 123, customer_id: 124) }
 
       context "when parameters are valid" do
         it "creates a new calendar" do
           post "/calendars?#{api_key}", params
-          last_response.status.should == 201
-          last_response.body.should == params.slice(:title).to_json
+          should respond_with(201, :json, params.slice(:country, :title))
           Calendar.count.should == 1
           Calendar.last.customer_id.should_not == params[:customer_id]
           Calendar.last.id.should_not == params[:id]
@@ -40,54 +38,50 @@ describe CalendarAPI do
 
       context "when parameters are invalid" do
         it "returns an error if 'title' is not provided" do
-          post "calendars?#{api_key}", params.merge(:title => "")
-          last_response.status.should == 401
-          last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
+          post "calendars?#{api_key}", params.merge(title: "")
+          should respond_with(401, :json, errors: { "title" => ["can't be blank"] })
           Calendar.count.should == 0
         end
 
         it "returns an error if 'title' is too long" do
-          post "calendars?#{api_key}", params.merge(:title => "a" * 41)
-          last_response.status.should == 401
-          last_response.body.should == { :errors => 
-            { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+          post "calendars?#{api_key}", params.merge(title: "a" * 41)
+          should respond_with(401, :json, errors:
+            { "title" => ["must be equal or less than 40 characters long"] })
           Calendar.count.should == 0
         end
 
         it "returns an error if 'describe' is too long" do
-          post "calendars?#{api_key}", params.merge(:description => "a" * 1000)
-          last_response.status.should == 401
-          last_response.body.should == { :errors => 
-            { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
+          post "calendars?#{api_key}", params.merge(description: "a" * 1000)
+          should respond_with(401, :json, errors:
+            { "description" => ["must be equal or less than 1000 characters long"] })
           Calendar.count.should == 0
         end
       end
     end
 
     describe "GET /calendars/:id" do
-      let(:params) { attributes_for(:calendar, :description => "q") }
-      let(:calendar) { create(:calendar, params.merge(:customer => customer)) }
+      let(:params) { attributes_for(:calendar, description: "q") }
+      let(:calendar) { create(:calendar, params.merge(customer: customer)) }
+      let(:calendar2) { create(:calendar, params.merge(customer: customer)) }
 
       it "returns the calendar" do
         get "/calendars/#{calendar.id}?#{api_key}"
-        last_response.status.should == 200
-        last_response.body.should == Hash[params.slice(:title, :description).sort].to_json
+        should respond_with(200, :json, params.slice(:country, :description, :title))
       end
 
       it "returns an error if 'id' is invalid" do
         get "/calendars/1234124234?#{api_key}"
-        should response_with_error(404, "Not Found")
+        should respond_with(404, :json, errors: "Not Found")
       end
 
-      describe "GET /calendars/:id.ical" do
-        let!(:event_1) { create(:event, :calendar => calendar, :start => 9.days.ago, :end => 5.days.ago) }
-        let!(:event_2) { create(:event, :calendar => calendar, :start => 6.days.ago, :end => 3.days.ago) }
+      context ".ical" do
+        let!(:event_1) { create(:event, calendar: calendar,  dtstart: 9.days.ago, dtend: 5.days.ago) }
+        let!(:event_2) { create(:event, calendar: calendar,  dtstart: 6.days.ago, dtend: 3.days.ago) }
+        let!(:event_3) { create(:event, calendar: calendar2, dtstart: 7.days.ago, dtend: 1.days.ago) }
 
         it "returns the calendar in .ical format" do
           get "/calendars/#{calendar.id}.ical?#{api_key}"
-          last_response.status.should == 200
-          last_response.header["Content-Type"].should == "text/calendar"
-          Icalendar.parse(last_response.body).first.events.size.should == calendar.events.size
+          should respond_with_events(200, :ical, *calendar.events)
         end
       end
     end
@@ -101,7 +95,7 @@ describe CalendarAPI do
         it "updates the object" do
           put "/calendars/#{calendar.id}?#{api_key}", new_params
           last_response.status.should == 200
-          last_response.body.should == new_params.slice(:description, :title).to_json
+          last_response.body.should == new_params.slice(:country, :description, :title).to_json
 
           calendar.reload
           calendar.title.should == new_params[:title]
@@ -112,14 +106,12 @@ describe CalendarAPI do
       context "when parameters are invalid" do
         it "returns an error if 'id' if invalid" do
           put "/calendars/123213123?#{api_key}", new_params
-          should response_with_error(404, "Not Found")
+          should respond_with(404, :json, errors: "Not Found")
         end
 
         it "returns an error if 'title' is blank" do
           put "/calendars/#{calendar.id}?#{api_key}", new_params.merge(:title => "")
-          last_response.status.should == 401
-          last_response.body.should == { :errors => { "title" => ["can't be blank"] } }.to_json
-
+          should respond_with(401, :json, errors: { "title" => ["can't be blank"] })
           calendar.reload
           calendar.title.should == origin_params[:title]
           calendar.description.should == origin_params[:description]
@@ -127,9 +119,8 @@ describe CalendarAPI do
 
         it "returns an error if 'title' is too long" do
           put "/calendars/#{calendar.id}?#{api_key}", new_params.merge("title" => "1"*41)
-          last_response.status.should == 401
-          last_response.body.should == { :errors => 
-             { "title" => ["must be equal or less than 40 characters long"] } }.to_json
+          should respond_with(401, :json, errors:
+             { "title" => ["must be equal or less than 40 characters long"] })
           calendar.reload
           calendar.title.should == origin_params[:title]
           calendar.description.should == origin_params[:description]
@@ -137,9 +128,8 @@ describe CalendarAPI do
 
         it "returns an error if 'description' is too long" do
           put "/calendars/#{calendar.id}?#{api_key}", new_params.merge("description" => "1"*1000)
-          last_response.status.should == 401
-          last_response.body.should == { :errors => 
-             { "description" => ["must be equal or less than 1000 characters long"] } }.to_json
+          should respond_with(401, :json, errors:
+             { "description" => ["must be equal or less than 1000 characters long"] })
           calendar.reload
           calendar.title.should == origin_params[:title]
           calendar.description.should == origin_params[:description]
@@ -158,7 +148,7 @@ describe CalendarAPI do
 
       it "returns an error if 'id' is invalid" do
         delete "/calendars/21312312312?#{api_key}"
-        should response_with_error(404, "Not Found")
+        should respond_with(404, :json, errors: "Not Found")
       end
     end
   end

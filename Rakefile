@@ -1,12 +1,7 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__))
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'config'))
 
-require "mongo_mapper"
-require "grape"
-require "pry"
-
-require File.expand_path("lib/api/application_api.rb")
-Dir.glob('lib/api/**/*.rb') { |f| require File.expand_path(f) }
+require "config/boot"
 
 desc "Displays routes"
 task 'routes' do
@@ -23,9 +18,6 @@ end
 desc "seeds data"
 task "ical" do
   require "ffaker"
-  MongoMapper.database = "calendar_api"
-  Dir.glob('lib/lib/**/*.rb') { |f| require File.expand_path(f) }
-  Dir.glob('lib/models/**/*.rb') { |f| require File.expand_path(f) }
 
   sen = proc { Faker::Lorem.sentence[0..39] }
 
