@@ -1,7 +1,4 @@
 class CalendarAPI < Grape::API
-  format :json
-  error_format :json
-
   resource :calendars do
     namespace "/:calendar_ids" do
       resource :events do
@@ -10,11 +7,11 @@ class CalendarAPI < Grape::API
           optional :end, :type => Integer
         end
         get do
-          events = Event.search(params.slice(:calendar_ids, :start, :end))
+          events = Event.search(params.slice(:calendar_ids, :start, :end), current_user)
           if events.any?
-            events.to_json
+            events
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
@@ -26,25 +23,25 @@ class CalendarAPI < Grape::API
           requires :end, :type => Integer
         end
         post do
-          if calendar = Calendar.find(params.calendar_ids)
+          calendar = Calendar.find(params.calendar_ids)
+          if can?(calendar)
             event = calendar.events.build(params.slice(:title, :description, :start, :end, :color))
             if event.save
-              header("Location", location_for(event))
               event
             else
-              error!({ :errors => event.errors.messages }, 401)
+              attributes_error(event)
             end
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
         get ":id" do
           event = Event.find(params.id)
-          if event && event.calendar_id.to_s == params.calendar_ids
+          if can?(event)
             event
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
@@ -57,26 +54,27 @@ class CalendarAPI < Grape::API
         end
         put ":id" do
           event = Event.find(params.id)
-          if event && event.calendar_id.to_s == params.calendar_ids
+          if can?(event)
             if event.update_attributes(params.slice(:title, :description, :start, :end, :color))
               event
             else
-              error!({ :errors => event.errors.messages }, 401)
+              attributes_error(event)
             end
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
 
         delete ":id" do
           event = Event.find(params.id)
-          if event && event.calendar_id.to_s == params.calendar_ids
+          if can?(event)
             event.delete
           else
-            error!({ :errors => "Not Found" }, 404)
+            not_found
           end
         end
       end
     end
   end
 end
+
