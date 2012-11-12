@@ -42,14 +42,34 @@ img {
   font-size: 1.5em;
   padding: 0.5em 2em;
 }
-.feature_1 {
+.feature {
   height: 500px;
   padding-top: 50px;
   text-align: center;
 }
-.feature_1 h1 {
-  font-size: 3em;
-  margin-top: 150px;
+.feature h2 {
+  font-size: 1.5em;
+  text-align: left;
+  margin-top: 0;
+}
+.feature.ical .image {
+  height: 420px;
+  background: url(/img/icalendar.png?1);
+}
+.feature.analytics h3 {
+  text-align: left;
+  margin-top: -30px;
+  cursor: default;
+}
+.feature.analytics .image {
+  margin-top: 40px;
+  height: 200px;
+  background: url(/img/calendar_overview.png) no-repeat;
+}
+.feature.analytics .holidays {
+  margin-top: 30px;
+  height: 200px;
+  background: url(/img/staff_holiday.png) no-repeat;
 }
 .signup .pricing {
   padding-top: 50px;
@@ -70,6 +90,9 @@ img {
 .footer {
   height: 100px;
   background-color: #acd3ac;
+}
+form.request {
+  text-align: left;
 }
 img.typekit-badge {
   display: none !important;

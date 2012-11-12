@@ -3,6 +3,7 @@
   <head>
     <title>Work calendar</title>
     <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/css/datepicker.css" rel="stylesheet"/>
     <!--<link href="css/bootstrap-responsive.min.css" rel="stylesheet"/>-->
     <link href="css/index.css" rel="stylesheet"/>
 
@@ -31,14 +32,118 @@
       </div>
     </div>
 
-    <div class="feature_1">
+    <div class="feature">
       <div class="container">
         <div class="row">
           <div class="span4">
-            <h1>Easy tracking</h1>
+            <h2>Easy tracking</h2>
           </div>
           <div class="span8">                        
-            <img src="/img/request_holiday.png" width="634" height="416" />
+            <form class="form-horizontal request">
+              <legend>Request holiday</legend>
+
+              <div class="control-group type" style="margin-bottom: 10px">
+                <label class="control-label" for="inputPassword" style="padding-top: 15px">Type</label>
+                <div class="controls">
+                  <div class="btn-toolbar">
+                    <div class="btn-group">               
+                      <a class="btn vacation btn-success" href="javascript:;" >Vacation</a>
+                      <a class="btn personal" href="javascript:;">Personal day</a>
+                      <a class="btn sick" href="javascript:;">Sick day</a>
+                    </div>
+                  </div>
+                </div>
+              </div>          
+
+              <div class="control-group date">
+                <label class="control-label" for="inputPassword">Start</label>
+                <div class="controls">
+                  <div class="input-append">
+                    <input type="text" placeholder="mm/dd/yyyy">
+                    <div class="btn-group">
+                      <button class="btn dropdown-toggle" data-toggle="dropdown">
+                        <span class="current">All day</span>
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a href="javascript:;">All day</a></li>
+                        <li><a href="javascript:;">Morning</a></li>
+                        <li><a href="javascript:;">Afternoon</a></li>
+                      </ul>
+                    </div>                
+                  </div>
+                </div>
+              </div>
+
+              <div class="control-group date">
+                <label class="control-label" for="inputPassword">End</label>
+                <div class="controls">
+                  <div class="input-append">
+                    <input type="text" placeholder="mm/dd/yyyy">
+                    <div class="btn-group">
+                      <button class="btn dropdown-toggle" data-toggle="dropdown">
+                        <span class="current">All day</span>
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a href="javascript:;">All day</a></li>
+                        <li><a href="javascript:;">Morning</a></li>
+                        <li><a href="javascript:;">Afternoon</a></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>  
+
+              <div class="control-group">
+                <label class="control-label" for="inputPassword">Duration</label>
+                <div class="controls">
+                  <input type="text" readonly class="span1" value="1"/>
+                  <span class="help-inline">Remaining days: 10</span>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label" for="inputPassword">Comments</label>
+                <div class="controls">
+                  <textarea></textarea>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="button" class="btn">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature analytics">
+      <div class="container">
+        <div class="row">
+          <div class="span4">
+            <h2>Get insights</h2>
+          </div>
+          <div class="span8">
+            <h3>Holidays overview for Support department</h3>         
+            <div class="image">
+            </div>
+            <div class="holidays">              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
+
+    <div class="feature ical">
+      <div class="container">
+        <div class="row">
+          <div class="span4">
+            <h2>Works great with existing tools like iCallendar</h2>
+          </div>
+          <div class="span8 image">            
           </div>
         </div>
       </div>
@@ -49,4 +154,10 @@
       </div>  
     </div>
   </body>
+
+  <script type="text/javascript" src="/js/jquery.min.js"></script>
+  <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/js/bootstrap-datepicker.js"></script>
+
+  <script type="text/javascript" src="/js/index.js"></script>  
 </html>

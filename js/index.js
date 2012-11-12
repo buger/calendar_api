@@ -8,7 +8,23 @@
   });
 
   $('form.request .type .btn').on('click', function(evt) {
-    return $(this).parents('.type').find('.btn').removeClass('btn-warning btn-success btn-info');
+    var key, map, value, _results;
+    $(this).parents('.type').find('.btn').removeClass('btn-warning btn-success btn-danger');
+    map = {
+      'vacation': 'btn-success',
+      'personal': 'btn-warning',
+      'sick': 'btn-danger'
+    };
+    _results = [];
+    for (key in map) {
+      value = map[key];
+      if ($(this).hasClass(key)) {
+        _results.push($(this).addClass(map[key]));
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
   });
 
 }).call(this);
