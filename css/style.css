@@ -1,0 +1,198 @@
+#controls {
+  position: relative;
+}
+#controls .btn-success {
+  margin-left: 10px;
+}
+#timezone_table {
+  overflow: scroll;
+  margin-top: 30px;
+}
+#timezone_table span {
+  width: 100px;
+  margin-top: 20px;
+  position: absolute;
+  text-align: right;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+#timezone_table .progress {
+  position: absolute;
+}
+#timezone_table .table {
+  border-top: 0;
+  margin-left: 119px;
+}
+#timezone_table .table tr td {
+  text-align: center;
+  padding: 8px;
+  border-bottom: 5px solid white;
+  border-top: 0;
+  cursor: default;
+  vertical-align: middle !important;
+  height: 25px;
+}
+#timezone_table .table tr td div {
+  width: 20px;
+  position: relative;
+  text-indent: -99999px;
+}
+#timezone_table .table tr td.available {
+  background-color: #C8FFD3;
+}
+#timezone_table .table tr td.dnd {
+  background-color: #aab9c1;
+}
+#timezone_table .table tr td.holiday.available {
+  background-color: #ccc;
+}
+#timezone_table .table tr td.holiday.dnd {
+  background-color: #AAB9C1;
+}
+#timezone_table .table tr td.holiday.hour_0 {
+  background-color: #AAB9C1;
+}
+#timezone_table .table tr td.hour_0 {
+  border-left: 3px solid #7F7B92;
+  font-size: 13px;
+  line-height: 100%;
+  background: #7e95a1 !important;
+  font-weight: normal !important;
+}
+#timezone_table .table tr td.hour_0 div {
+  text-indent: 0;
+}
+#timezone_table .table tr td.hour_0:first-line {
+  font-size: 10px;
+}
+#timezone_table .table tr td.selected {
+  font-weight: 500;
+  cursor: pointer;
+}
+#timezone_table .table tr td.selected.available {
+  background: #95ffaa;
+}
+#timezone_table .table tr td.selected.dnd {
+  background: #8da1ab;
+}
+#timezone_table .table tr td.selected div {
+  text-indent: 0;
+}
+#timezone_table .table tr td.hour_0.holiday div {
+  text-indent: 0 !important;
+}
+#timezone_table .table tr td:first-child {
+  position: absolute;
+  left: 0;
+  background-color: white;
+  width: 100px;
+  z-index: 1;
+}
+#timezone_table .table tr td:first-child div {
+  width: 100px;
+  text-align: right;
+}
+#timezone_table .table tr td:first-child:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+#timezone_table .table tr:first-child td:first-child {
+  font-weight: bold;
+}
+#timezone_table .table tr:first-child td div {
+  text-indent: 0;
+}
+#calendar {
+  margin-top: 30px;
+}
+#calendar .header {
+  float: left;
+  width: 14.285714285714286%;
+  box-sizing: border-box;
+  padding: 0px 3px;
+  text-align: center;
+}
+#calendar h2 {
+  text-align: center;
+  font-size: 25px;
+  font-weight: normal !important;
+}
+#calendar h2 span {
+  font-weight: bold;
+}
+#calendar h2 #prev,
+#calendar h2 #next {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  cursor: pointer;
+  color: #999;
+}
+#calendar h2 #prev:hover,
+#calendar h2 #next:hover {
+  text-decoration: none;
+  font-weight: bold;
+  color: #08c;
+}
+#calendar h2 #prev {
+  left: 20px;
+  text-align: left;
+}
+#calendar h2 #next {
+  right: 20px;
+  text-align: right;
+}
+#calendar .day {
+  float: left;
+  width: 14.285714285714286%;
+  box-sizing: border-box;
+  border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  padding: 5px;
+  min-height: 120px;
+  text-align: right;
+}
+#calendar .day.col_0 {
+  border-left: none;
+}
+#calendar .day.current {
+  font-weight: bold;
+}
+#calendar .day.col_0 .holiday {
+  opacity: 0.2;
+}
+#calendar .day.col_6 .holiday {
+  opacity: 0.2;
+}
+#calendar .holiday {
+  height: 20px;
+  border-radius: 10px;
+  margin-bottom: 3px;
+  color: white;
+  text-align: center;
+  overflow: hidden;
+  font-weight: normal;
+  padding: 0px 2px;
+  display: block;
+  cursor: pointer;
+}
+#calendar .holiday2 {
+  background-color: #52e052;
+  top: 105px;
+  left: 170px;
+  width: 330px;
+}
+#calendar .holiday3 {
+  background-color: #6666ff;
+  top: 205px;
+  left: 335px;
+  width: 670px;
+}
+#calendar .holiday4 {
+  background-color: #ff6666;
+  top: 230px;
+  left: 170px;
+  width: 670px;
+}
