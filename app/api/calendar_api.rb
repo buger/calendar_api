@@ -29,9 +29,11 @@ class CalendarAPI < Grape::API
     end
 
     get ":id" do
-      calendar = Calendar.find(params.id)
-      if can?(calendar)
-        calendar
+      @calendar = Calendar.find(params.id)
+      if can?(@calendar)
+        present @calendar, with: CalendarAPI::Entities::Calendar,
+          with_events: %w(ical html).include?(params.format) ? true : false,
+          with_holidays: %w(ical html).include?(params.format) && params.holidays ? true : false
       else
         not_found
       end

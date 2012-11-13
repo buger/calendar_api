@@ -24,7 +24,7 @@ class Calendar
   end
 
   def holidays
-    holiday_calendar.try(:events)
+    holiday_calendar.try(:events) || []
   end
 
   def serializable_hash(options = {})
