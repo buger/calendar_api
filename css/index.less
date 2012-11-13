@@ -17,12 +17,19 @@ img {
 	max-width: none;
 }
 
-.header {
+
+.header, .footer {
 	background-color: @green;
 
 	ul { 
 		margin-top: 16px;
 		margin-bottom: 20px;
+
+		a { 
+			color: black; 
+			text-decoration: none; 
+			font-size: 1.5em;
+		}
 	}
 
 	h3 {
@@ -50,33 +57,50 @@ img {
 }
 
 .feature {
-	height: 500px;
-	padding-top: 50px;
+	height: 330px;
+	margin-top: 150px;
 
 	text-align: center;
 
+	ul { margin-top: 20px; }
+
+	li {
+		text-align: left;
+		margin-bottom: 20px;
+		font-size: 1em;
+	}
+
 	h2 {
-		font-size: 1.5em;
+		font-size: 2em;
 		text-align: left;
 		margin-top: 0;
 	}
 
+	&.tracking {
+		margin-top: 250px;
+	}
+
 	&.ical {
+		height: 400px;
+
 		.image {
-			height: 420px;
+			height: 320px;
 			background: url(/img/icalendar.png?1);
 		}
 	}
 
 	&.analytics {
+		height: 200px;
+
 		h3 {				
 			text-align: left;
 			margin-top: -30px;
 			cursor: default;
+			position: absolute;
 		}
-		
+
 		.image {			
-			margin-top: 40px;
+			margin-top: 30px;
 			height: 200px;
 			background: url(/img/calendar_overview.png) no-repeat;
 		}
@@ -111,12 +135,22 @@ img {
 }
 
 .footer {
-	height: 100px;
 	background-color: @green;
 }
 
 form.request {
 	text-align: left;
+}
+
+form.signup {
+	.input-append { font-size: inherit; }	
+
+	input {
+		margin-right: -3px;
+		padding: 12px 16px;
+		font-size: 18px;
+	}
+	button { font-size: 18px; }
 }
 
 img.typekit-badge { display: none !important; }
