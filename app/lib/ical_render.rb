@@ -16,8 +16,19 @@ class IcalRender
       build_ical_from_calendars(objects)
     elsif objects.first.is_a?(Event)
       build_ical_from_events(objects)
+    elsif objects.first.is_a?(Grape::Entity)
+      build_cal_from_presenter(objects)
     else
       objects.first.to_s
+    end
+  end
+
+  def build_cal_from_presenter(objects)
+    build_calendar do |builder|
+      objects.each do |calendar|
+        add_events(builder, calendar.object.events) if calendar.options[:with_events]
+        add_events(builder, calendar.object.holidays) if calendar.options[:with_holidays]
+      end
     end
   end
 

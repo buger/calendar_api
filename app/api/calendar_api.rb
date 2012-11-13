@@ -1,7 +1,18 @@
 class CalendarAPI < Grape::API
+  module Entities
+    class Calendar < Grape::Entity
+      expose :country, :description, :title
+      expose :events, :if => { with_events: true }
+      expose :holidays, :if => { with_holidays: true }
+    end
+  end
+
   resource :calendars do
     get do
-      current_user.calendars
+      @calendars = current_user.calendars
+      present @calendars, with: CalendarAPI::Entities::Calendar,
+        with_events: %w(ical html).include?(params.format) ? true : false,
+        with_holidays: %w(ical html).include?(params.format) && params.holidays ? true : false
     end
 
     params do

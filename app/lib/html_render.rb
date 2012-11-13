@@ -23,6 +23,17 @@ class HTMLRender
       events = objects.map { |e| e.events }.flatten
 
       [title, nil, events]
+    elsif objects.first.is_a?(Grape::Entity)
+      title = objects.map { |o| o.object.title }.uniq.join(", ")
+
+      events = []
+
+      objects.each do |calendar|
+        events += calendar.object.events if calendar.options[:with_events]
+        events += calendar.object.holidays if calendar.options[:with_holidays]
+      end
+
+      [title, nil, events]
     else
       [nil, nil, nil]
     end
