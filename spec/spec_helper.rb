@@ -18,11 +18,13 @@ Dir["#{File.dirname(__FILE__)}/support/*.rb"].sort.each { |f| require f }
 
 require "factories"
 require "json_spec"
+require "mongoid-rspec"
 require "differ"
 Differ.format = :color
 
 RSpec.configure do |config|
   config.include JsonSpec::Helpers
+  config.include Mongoid::Matchers
 
   config.include RSpec::Helpers
   config.include RSpec::CustomMatchers
@@ -31,16 +33,16 @@ RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
 
   config.before(:suite) do
-    DatabaseCleaner[:mongo_mapper].strategy = :truncation
-    DatabaseCleaner[:mongo_mapper].clean_with(:truncation)
+    DatabaseCleaner[:mongoid].strategy = :truncation
+    DatabaseCleaner[:mongoid].clean_with(:truncation)
   end
 
   config.before(:each) do
-    DatabaseCleaner[:mongo_mapper].start
+    DatabaseCleaner[:mongoid].start
   end
 
   config.after(:each) do
-    DatabaseCleaner[:mongo_mapper].clean
+    DatabaseCleaner[:mongoid].clean
   end
 end
 

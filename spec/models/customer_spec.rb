@@ -1,14 +1,8 @@
-describe Customer do
-  let!(:customer1) { create(:customer) }
-  let!(:customer2) { create(:customer) }
-  let(:calendar1) { attributes_for(:calendar) }
+require "spec_helper"
 
-  it "has many calendars" do
-    calendar = customer1.calendars.create!(calendar1.slice(:title))
-    calendar.reload
-    Calendar.count.should == 1
-    customer1.calendars.should == [calendar]
-    customer2.calendars.should == []
-  end
+describe Customer do
+  it { should have_many(:calendars) }
+  it { should have_index_for(api_key: 1).with_options(unique: true) }
+  it { should_not allow_mass_assignment_of(:api_key) }
 end
 

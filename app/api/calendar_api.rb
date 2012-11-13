@@ -1,7 +1,7 @@
 class CalendarAPI < Grape::API
   resource :calendars do
     get do
-      Calendar.for_customer(current_user)
+      current_user.calendars
     end
 
     params do
@@ -11,7 +11,7 @@ class CalendarAPI < Grape::API
     post do
       calendar = current_user.calendars.build(params.slice(:country, :title, :description))
       if calendar.save
-        calendar#.with_holidays(params)
+        calendar
       else
         attributes_error(calendar)
       end
@@ -20,7 +20,7 @@ class CalendarAPI < Grape::API
     get ":id" do
       calendar = Calendar.find(params.id)
       if can?(calendar)
-        calendar.with_holidays(params)
+        calendar
       else
         not_found
       end

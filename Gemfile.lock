@@ -36,16 +36,20 @@ GEM
       multi_json (~> 1.0)
       rspec (~> 2.0)
     method_source (0.8.1)
-    mongo (1.7.0)
-      bson (~> 1.7.0)
-    mongo_mapper (0.12.0)
-      activemodel (~> 3.0)
-      activesupport (~> 3.0)
-      plucky (~> 0.5.2)
+    mongoid (3.0.6)
+      activemodel (~> 3.1)
+      moped (~> 1.1)
+      origin (~> 1.0)
+      tzinfo (~> 0.3.22)
+    mongoid-rspec (1.5.4)
+      mongoid (>= 3.0.1)
+      rake
+      rspec (>= 2.9)
+    moped (1.2.2)
     multi_json (1.3.7)
     multi_xml (0.5.1)
-    plucky (0.5.2)
-      mongo (~> 1.5)
+    nokogiri (1.5.5)
+    origin (1.0.8)
     pry (0.9.10)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -70,8 +74,12 @@ GEM
     rspec-core (2.11.1)
     rspec-expectations (2.11.3)
       diff-lcs (~> 1.1.3)
+    rspec-html-matchers (0.3.5)
+      nokogiri (>= 1.4.4)
+      rspec (>= 2.0.0)
     rspec-mocks (2.11.3)
     slop (3.3.3)
+    tzinfo (0.3.33)
     virtus (0.5.2)
       backports (~> 2.6.1)
 
@@ -83,15 +91,17 @@ DEPENDENCIES
   bson_ext
   database_cleaner
   differ
-  factory_girl (~> 4.0)
+  factory_girl
   ffaker
   grape
   icalendar
   json_spec
-  mongo_mapper
+  mongoid
+  mongoid-rspec
   pry
   pry-nav
   pry-remote
   rack-test
   rake
   rspec
+  rspec-html-matchers

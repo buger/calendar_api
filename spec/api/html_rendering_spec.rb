@@ -1,4 +1,5 @@
 require "spec_helper.rb"
+require "rspec-html-matchers"
 
 describe CalendarAPI do
   include Rack::Test::Methods
@@ -17,7 +18,7 @@ describe CalendarAPI do
       it "renders html" do
         get "/calendars/#{calendar.id}.html?#{api_key}&holidays=true"
         last_response.status.should == 200
-        last_response.body
+        last_response.body.should have_tag("h1", text: "Calendar: #{calendar.title}")
       end
     end
   end

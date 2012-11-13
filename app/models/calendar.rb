@@ -1,46 +1,46 @@
 class Calendar
-  include MongoMapper::Document
+  include Mongoid::Document
+  include Grape::Entity::DSL
 
-  key :title,        String
-  key :description,  String
-  key :country,      String
-  key :owner_id,     ObjectId
+  field :title,        type: String
+  field :description,  type: String
+  field :country,      type: String
+
+  attr_accessible :country, :title, :description
+  entity :country, :title, :description
 
   validates_presence_of :title
+  validates_length_of :title, minimum: 1, maximum: 40
+  validates_length_of :description, minimum: 0, maximum: 1000
 
-  attr_accessor :include_holidays
-  attr_accessible :country, :title, :description
+  belongs_to :customer, index: true
+  belongs_to :holiday_calendar
+  has_many :events, dependent: :delete
 
-  many :events
-  belongs_to :customer
+  before_save :assign_holiday_calendar
 
-  scope :for_customer, lambda { |customer| where(:customer_id => customer.id) }
+  def assign_holiday_calendar
+    self.holiday_calendar = HolidayCalendar.find_by(country: self.country)
+  end
+
+  def holidays
+    holiday_calendar.try(:events)
+  end
 
   def serializable_hash(options = {})
-    super({:only => ["title", "description", "country"]}.merge(options))
+    super({only: %w(title description country)}.merge(options))
   end
 
   def is_accessible?(current_user, params = nil)
     current_user.has?(self)
   end
 
-  def with_holidays(params)
-    self.include_holidays = params.holidays
-    self
-  end
-
   def to_ical
-    IcalendarRender.new(*add_holidays(events)).to_ical
+    IcalendarRender.new(*events).to_ical
   end
 
   def to_html
-    HTMLRender.new(self).render
-  end
-
-  private
-
-  def add_holidays(events)
-    events + (self.include_holidays ? Holidays.for_country(self.country) : [])
+    HTMLRender.new(title: title, events: events).to_html
   end
 end
 

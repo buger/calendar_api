@@ -67,7 +67,7 @@ describe CalendarAPI do
 
           new_attrs = attributes_for(:calendar)
           api_key = { api_key: customer2.api_key }.to_query
-          put "/calendars/#{calendar2.id}?#{api_key}", new_attrs.slice(:country, :title)
+          put "/calendars/#{calendar2.id}?#{api_key}", new_attrs
           should respond_with(200, :json, new_attrs)
           calendar2.reload
           calendar2.title.should == new_attrs[:title]
@@ -80,7 +80,7 @@ describe CalendarAPI do
 
           new_attrs = attributes_for(:calendar)
           api_key = { api_key: customer1.api_key }.to_query
-          put "/calendars/#{calendar1.id}?#{api_key}", new_attrs.slice(:country, :title)
+          put "/calendars/#{calendar1.id}?#{api_key}", new_attrs
           should respond_with(200, :json, new_attrs)
           calendar1.reload
           calendar1.title.should == new_attrs[:title]

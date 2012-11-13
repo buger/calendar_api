@@ -199,7 +199,8 @@ describe CalendarAPI do
 
     it "returns an error if 'title' is blank" do
       put "/calendars/#{calendar.id}/events/#{event.id}?#{api_key}", origin_attrs.merge(title: "")
-      should respond_with(401, :json, errors: { "title" => ["can't be blank"] })
+      should respond_with(401, :json, errors: { "title" => ["can't be blank",
+        "is too short (minimum is 1 characters)"] })
       event.reload
       event.title.should == origin_attrs[:title]
       event.description.should == origin_attrs[:description]

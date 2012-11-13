@@ -3,19 +3,20 @@ module Grape
     class Base
       module Formats
         CONTENT_TYPES[:ical] = "text/calendar"
-        FORMATTERS[:ical]    = :encode_ical
-
-        def encode_ical(object)
-          object.respond_to?(:to_ical) ? object.to_ical : object.to_s
-        end
-
         CONTENT_TYPES[:html] = "text/html"
+
+        FORMATTERS[:ical]    = :encode_ical
         FORMATTERS[:html]    = :encode_html
 
+        def encode_ical(object)
+          IcalRender.new(object).render
+        end
+
         def encode_html(object)
-          object.respond_to?(:to_html) ? object.to_html : object.to_s
+          HTMLRender.new(object).render
         end
       end
     end
   end
 end
+

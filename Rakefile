@@ -29,3 +29,35 @@ task "ical" do
   puts "http://localhost:9292/calendars/#{cal.id}.html?api_key=#{customer.api_key}&holidays=true"
 end
 
+desc "Load holidays"
+task "holidays" do
+  HolidayCalendar.all.each(&:destroy)
+  customer = Customer.create
+  Dir["data/holidays/**/*.json"].each do |json_file|
+    holidays_hash = JSON.parse(File.read(json_file))
+    holidays_list, country = holidays_hash.values_at("holidays", "country")
+
+    holiday_model = HolidayCalendar.create(country: country)
+    holiday_model.customer = customer
+    holiday_model.save
+
+    holidays_list.each do |holiday_event|
+      time, holiday_name, description = holiday_event
+
+      event = holiday_model.events.build
+      event.start       = Time.at(time / 1000 + 6.hours.to_i).utc.to_i
+      event.end         = Time.at(time / 1000 + 30.hours.to_i).utc.to_i
+      event.title       = holiday_name
+      event.description = description
+      event.save
+    end
+  end
+  puts "Holidays have been created"
+  puts HolidayCalendar.all.map { |hc| "#{hc.country} (#{hc.events.count})" }.join(", ")
+end
+
+desc "console"
+task "c" do
+  `irb --prompt simple -I . -r config/boot`
+end
+
