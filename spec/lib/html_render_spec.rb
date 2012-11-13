@@ -15,28 +15,28 @@ describe HTMLRender do
 
   it "renders pain text of objects in not Calendar or Event" do
     object = "text 123"
-    subject.new(object).instance_variable_get(:@events).should == nil
+    subject.new("", object).instance_variable_get(:@events).should == nil
   end
 
   it "renders calendar with a single event" do
-    subject.new(event1).instance_variable_get(:@events).should == [event1]
+    subject.new("", event1).instance_variable_get(:@events).should == [event1]
   end
 
   it "renders calendar with multiple events" do
-    render = subject.new(event1, event2)
+    render = subject.new("", event1, event2)
     render.instance_variable_get(:@title).should == event1.calendar.title
     render.instance_variable_get(:@events).should == [event1, event2]
   end
 
   it "renders calendar with the events of the passed calendar" do
-    render = subject.new(calendar1)
+    render = subject.new("", calendar1)
     render.instance_variable_get(:@title).should == calendar1.title
     render.instance_variable_get(:@events).should == [event1, event2, event3]
   end
 
   it "renders calendar with the events of the passsed calendars" do
     events = [event1, event2, event3, event4, event5]
-    render = subject.new(calendar1, calendar2)
+    render = subject.new("", calendar1, calendar2)
     render.instance_variable_get(:@title).should == "#{calendar1.title}, #{calendar2.title}"
     render.instance_variable_get(:@events).should == events
   end

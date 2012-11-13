@@ -25,8 +25,15 @@ task "ical" do
   cal = customer.calendars.create(title: sen[], country: "Russia")
   cal.events.create(title: sen[], start: 5.days.ago, :end => 1.day.ago)
   cal.events.create(title: sen[], start: 9.days.ago, :end => 8.day.ago)
-  puts "http://localhost:9292/calendars/#{cal.id}?api_key=#{customer.api_key}"
+
+  cal2 = customer.calendars.create(title: sen[], country: "Russia")
+  cal2.events.create(title: sen[], start: Time.now + 2.days, :end => Time.now + 5.day)
+
+  puts "http://localhost:9292/calendars/#{cal.id}.html?api_key=#{customer.api_key}"
   puts "http://localhost:9292/calendars/#{cal.id}.html?api_key=#{customer.api_key}&holidays=true"
+
+  puts "http://localhost:9292/calendars/#{cal.id}/events.html?api_key=#{customer.api_key}"
+  puts "http://localhost:9292/calendars/#{cal.id}/events.html?api_key=#{customer.api_key}&holidays=true"
 end
 
 desc "Load holidays"

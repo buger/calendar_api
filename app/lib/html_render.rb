@@ -1,7 +1,8 @@
 require "erb"
 
 class HTMLRender
-  def initialize(*objects)
+  def initialize(public_path, *objects)
+    @public_folder = public_path
     @title, @description, @events = normalize(objects.flatten)
   end
 

@@ -1,6 +1,8 @@
 require "grape"
 require "mongoid"
 
+$CALENDAR_API_ROOT = Dir.pwd
+
 Mongoid.load!("config/mongoid.yml", :development)
 Mongoid.logger = Logger.new($stdout)
 

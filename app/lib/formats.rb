@@ -13,7 +13,13 @@ module Grape
         end
 
         def encode_html(object)
-          HTMLRender.new(object).render
+          HTMLRender.new(public_path, object).render
+        end
+
+        private
+
+        def public_path
+          "./".concat("../" * (request.path.count("/") - 1))
         end
       end
     end
