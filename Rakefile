@@ -27,13 +27,19 @@ task "ical" do
   cal.events.create(title: sen[], start: 9.days.ago, :end => 8.day.ago)
 
   cal2 = customer.calendars.create(title: sen[], country: "Russia")
-  cal2.events.create(title: sen[], start: Time.now + 2.days, :end => Time.now + 5.day)
+  e = cal2.events.create(title: sen[], start: Time.now + 2.days, :end => Time.now + 5.day)
 
   puts "http://localhost:9292/calendars/#{cal.id}.html?api_key=#{customer.api_key}"
   puts "http://localhost:9292/calendars/#{cal.id}.html?api_key=#{customer.api_key}&holidays=true"
 
   puts "http://localhost:9292/calendars/#{cal.id}/events.html?api_key=#{customer.api_key}"
   puts "http://localhost:9292/calendars/#{cal.id}/events.html?api_key=#{customer.api_key}&holidays=true"
+
+  puts "http://localhost:9292/calendars/#{cal.id},#{cal2.id}/events.html?api_key=#{customer.api_key}"
+  puts "http://localhost:9292/calendars/#{cal.id},#{cal2.id}/events.html?api_key=#{customer.api_key}&holidays=true"
+
+  puts "http://localhost:9292/calendars/#{cal2.id}/events/#{e.id}.html?api_key=#{customer.api_key}"
+  puts "http://localhost:9292/calendars/#{cal2.id}/events/#{e.id}.html?api_key=#{customer.api_key}&holidays=true"
 end
 
 desc "Load holidays"

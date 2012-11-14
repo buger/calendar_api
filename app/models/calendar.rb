@@ -34,13 +34,5 @@ class Calendar
   def is_accessible?(current_user, params = nil)
     current_user.has?(self)
   end
-
-  def to_ical
-    IcalendarRender.new(*events).to_ical
-  end
-
-  def to_html
-    HTMLRender.new(title: title, events: events).to_html
-  end
 end
 
