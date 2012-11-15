@@ -7,12 +7,22 @@ class CalendarAPI < Grape::API
     end
   end
 
+  helpers do
+    def include_events?
+      %w(ical html).include?(params.format)
+    end
+
+    def include_holidays?
+      %w(ical html).include?(params.format) && params.holidays
+    end
+  end
+
   resource :calendars do
     get do
-      @calendars = current_user.calendars
-      present @calendars, with: CalendarAPI::Entities::Calendar,
-        with_events: %w(ical html).include?(params.format) ? true : false,
-        with_holidays: %w(ical html).include?(params.format) && params.holidays ? true : false
+      calendars = current_user.calendars
+      present calendars, with: CalendarAPI::Entities::Calendar,
+        with_events: include_events?,
+        with_holidays: include_holidays?
     end
 
     params do
@@ -29,11 +39,11 @@ class CalendarAPI < Grape::API
     end
 
     get ":id" do
-      @calendar = Calendar.find(params.id)
-      if can?(@calendar)
-        present @calendar, with: CalendarAPI::Entities::Calendar,
-          with_events: %w(ical html).include?(params.format) ? true : false,
-          with_holidays: %w(ical html).include?(params.format) && params.holidays ? true : false
+      calendar = Calendar.find(params.id)
+      if can?(calendar)
+        present calendar, with: CalendarAPI::Entities::Calendar,
+          with_events: include_events?,
+          with_holidays: include_holidays?
       else
         not_found
       end

@@ -5,7 +5,7 @@ class HolidayCalendar
 
   validates_presence_of :country
 
-  belongs_to :customer
+  # belongs_to :customer
   has_many :calendars
   has_many :events, dependent: :delete
 

@@ -19,7 +19,7 @@ module Grape
         private
 
         def public_path
-          "./".concat("../" * (request.path.count("/") - 1))
+          "./".concat("../" * (request.path.count(?/) - 1))
         end
       end
     end

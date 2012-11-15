@@ -15,7 +15,7 @@ class HTMLRender
 
   def normalize(objects)
     if objects.first.is_a?(Event)
-      title  = objects.map { |o| o.calendar.title }.uniq.join(", ")
+      title  = objects.map { |o| o.calendar.title if o.calendar }.uniq.join(", ")
       events = objects
 
       [title, nil, events]

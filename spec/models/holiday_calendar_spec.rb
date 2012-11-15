@@ -6,6 +6,5 @@ describe HolidayCalendar do
   it { should validate_presence_of(:country).on(:create, :update) }
   it { should have_index_for(country: 1).with_options(unique: true) }
   it { should have_many(:events) }
-  it { should belong_to(:customer) }
 end
 
