@@ -10,8 +10,8 @@ class Event
   field :color,        type: String
 
   belongs_to :calendar, index: true
-  belongs_to :customer
-  belongs_to :holiday_calendar
+  belongs_to :customer, index: true
+  belongs_to :holiday_calendar, index: true
 
   validates_presence_of :title
   validates_length_of :title, minimum: 1, maximum: 40
@@ -41,18 +41,32 @@ class Event
   }
 
   scope :calendars, lambda { |ids|
-    send(:in, {calendar_id: ids})
+    self.in(calendar_id: ids)
   }
 
   scope :within_time, lambda { |start_at, end_at|
     where(:start.gt => Time.at(start_at) - 1.day, :end.lt => Time.at(end_at) + 1.day)
   }
 
+  # TODO: Refactor this method
   def self.search(params, customer)
-    events = for_customer(customer)
-    events = events.calendars(params.calendar_ids.split(","))
-    events = events.within_time(*params.values_at("start", "end")) if params.start && params.end
-    events
+    if params.holidays
+      calendar_ids = params.calendar_ids.split(",") & customer.calendars.map { |o| o.id.to_s }
+      holiday_calendar_ids = Calendar.in(id: calendar_ids).to_a.map { |o| o.holiday_calendar_id.to_s }
+      
+      events = calendars(calendar_ids)
+      events = events.within_time(*params.values_at("start", "end")) if params.start && params.end
+
+      holidays = self.in(holiday_calendar_id: holiday_calendar_ids)
+      holidays = holidays.within_time(*params.values_at("start", "end")) if params.start && params.end
+
+      events + holidays 
+    else
+      events = for_customer(customer)
+      events = events.calendars(params.calendar_ids.split(","))
+      events = events.within_time(*params.values_at("start", "end")) if params.start && params.end
+      events = events.to_a
+    end
   end
 
   def is_accessible?(current_user, params)

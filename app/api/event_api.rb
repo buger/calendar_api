@@ -7,10 +7,7 @@ class CalendarAPI < Grape::API
           optional :end, :type => Integer
         end
         get do
-          events = Event.search(params.slice(:calendar_ids, :start, :end), current_user)
-          if params.holidays
-            events += Event.in(holiday_calendar_id: current_user.calendars.map(&:holiday_calendar_id).uniq).to_a
-          end
+          events = Event.search(params, current_user)
           if events.any?
             events
           else

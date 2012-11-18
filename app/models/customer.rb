@@ -6,7 +6,6 @@ class Customer
   field :api_key, type: String
 
   has_many :calendars, dependent: :delete
-  # has_many :holiday_calendars
   has_many :events
 
   before_create :generate_api_key
