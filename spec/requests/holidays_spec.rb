@@ -53,7 +53,18 @@ describe CalendarAPI do
     end
   end
 
-  describe "GET /calendars.ical" 
+  describe "GET /calendars.ical" do
+    it "includes holidays from all calendars" do
+      get "/calendars.ical?#{api_key}&holidays=true"
+      should respond_with(200, :ical,
+        calendar1.events + calendar1.holidays + calendar2.events + calendar2.holidays)
+    end
+
+    it "doesn't include holidays" do
+      get "/calendars.ical?#{api_key}"
+      should respond_with(200, :ical, calendar1.events + calendar2.events)
+    end
+  end
 
   describe "GET /calendars/:id.html" do
     it "includes holidays in the result" do
@@ -73,7 +84,17 @@ describe CalendarAPI do
     end
   end
 
-  describe "GET /calendars/:id.ical"
+  describe "GET /calendars/:id.ical" do
+    it "includes holidays in the result" do
+      get "/calendars/#{calendar2.id}.ical?#{api_key}&holidays=true"
+      should respond_with(200, :ical, calendar2.events + calendar2.holidays)
+    end
+
+    it "doesn't include holidays in the result" do
+      get "/calendars/#{calendar2.id}.ical?#{api_key}"
+      should respond_with(200, :ical, calendar2.events)
+    end
+  end
 
   describe "GET /calendars/:id/events.html" do
     it "includes holidays in the result" do
@@ -99,7 +120,17 @@ describe CalendarAPI do
     end
   end
 
-  describe "GET /calendars/:id/events.ical" 
+  describe "GET /calendars/:id/events.ical" do
+    it "includes holidays in the result" do
+      get "/calendars/#{calendar1.id},#{calendar2.id},#{calendar3.id}/events.ical?#{api_key}&holidays=true"
+      should respond_with(200, :ical,
+        calendar1.events + calendar2.events + calendar1.holidays + calendar2.holidays)
+    end
+    it "doesn't include holidays in the result" do
+      get "/calendars/#{calendar1.id},#{calendar2.id},#{calendar3.id}/events.ical?#{api_key}"
+      should respond_with(200, :ical, calendar1.events + calendar2.events)
+    end
+  end
 
   describe "GET /calendars/:id/events/:id.html"  do
     it "doesn't include holidays in the result" do
@@ -120,19 +151,5 @@ describe CalendarAPI do
       last_response.body.should include(calendar2.title)
     end
   end
-
-  describe "GET /calendars/:id/events/:id.ical" 
-
-  # describe "GET /calendars.html"
-  # describe "GET /calendars.ical" 
-
-  # describe "GET /calendars/:id.html"
-  # describe "GET /calendars/:id.ical" 
-
-  # describe "GET /calendars/:id/events.html" 
-  # describe "GET /calendars/:id/events.ical" 
-
-  # describe "GET /calendars/:id/events/:id.html" 
-  # describe "GET /calendars/:id/events/:id.ical" 
 end
 
