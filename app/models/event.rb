@@ -51,7 +51,7 @@ class Event
   # TODO: Refactor this method
   def self.search(params, customer)
     if params.holidays
-      calendar_ids = params.calendar_ids.split(",") & customer.calendars.map { |o| o.id.to_s }
+      calendar_ids = calendar_ids(params, customer)
       holiday_calendar_ids = Calendar.in(id: calendar_ids).to_a.map { |o| o.holiday_calendar_id.to_s }
       
       events = calendars(calendar_ids)
@@ -62,8 +62,7 @@ class Event
 
       events + holidays 
     else
-      events = for_customer(customer)
-      events = events.calendars(params.calendar_ids.split(","))
+      events = calendars(calendar_ids(params, customer))
       events = events.within_time(*params.values_at("start", "end")) if params.start && params.end
       events = events.to_a
     end
@@ -74,6 +73,10 @@ class Event
   end
 
   private
+
+  def self.calendar_ids(params, customer)
+    params.calendar_ids.split(",") & customer.calendars.map { |o| o.id.to_s }
+  end
 
   def js_timestamp(time)
     time.utc.to_i * 1000
