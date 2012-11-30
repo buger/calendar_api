@@ -19,6 +19,10 @@ class Calendar
 
   before_save :assign_holiday_calendar
 
+  def self.holidays_for_calendars(calendar_ids)
+    self.in(id: calendar_ids).to_a.map { |c| c.holiday_calendar_id.to_s }
+  end
+
   def assign_holiday_calendar
     self.holiday_calendar = HolidayCalendar.find_by(country: self.country)
   end

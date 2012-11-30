@@ -36,35 +36,26 @@ class Event
     js_timestamp super
   end
 
-  scope :for_customer, lambda { |customer|
-    where(customer_id: customer.id.to_s)
-  }
+  scope :for_customer, ->(customer) { where(customer_id: customer.id.to_s) }
 
-  scope :calendars, lambda { |ids|
-    self.in(calendar_id: ids)
-  }
+  scope :calendars, ->(ids) { self.in(calendar_id: ids) }
+
+  scope :holidays, ->(ids) { self.in(holiday_calendar_id: ids) }
 
   scope :within_time, lambda { |start_at, end_at|
     where(:start.gt => Time.at(start_at) - 1.day, :end.lt => Time.at(end_at) + 1.day)
   }
 
-  # TODO: Refactor this method
   def self.search(params, customer)
     if params.holidays
       calendar_ids = calendar_ids(params, customer)
-      holiday_calendar_ids = Calendar.in(id: calendar_ids).to_a.map { |o| o.holiday_calendar_id.to_s }
       
-      events = calendars(calendar_ids)
-      events = events.within_time(*params.values_at("start", "end")) if params.start && params.end
-
-      holidays = self.in(holiday_calendar_id: holiday_calendar_ids)
-      holidays = holidays.within_time(*params.values_at("start", "end")) if params.start && params.end
+      events   = events_for_calendars(calendar_ids, params)
+      holidays = holidays_for_calendars(Calendar.holidays_for_calendars(calendar_ids), params)
 
       events + holidays 
     else
-      events = calendars(calendar_ids(params, customer))
-      events = events.within_time(*params.values_at("start", "end")) if params.start && params.end
-      events = events.to_a
+      events_for_calendars(calendar_ids(params, customer), params)
     end
   end
 
@@ -74,12 +65,27 @@ class Event
 
   private
 
-  def self.calendar_ids(params, customer)
-    params.calendar_ids.split(",") & customer.calendars.map { |o| o.id.to_s }
-  end
-
   def js_timestamp(time)
     time.utc.to_i * 1000
+  end
+
+  class << self
+    def events_for_calendars(calendar_ids, params)
+      apply_time_range(calendars(calendar_ids), params).to_a
+    end
+
+    def holidays_for_calendars(holidays_ids, params)
+      apply_time_range(holidays(holidays_ids), params).to_a
+    end
+
+    def apply_time_range(objects, params)
+      return objects unless params.start && params.end
+      objects.within_time(*params.values_at("start", "end")) 
+    end
+
+    def calendar_ids(params, customer)
+      params.calendar_ids.split(",") & customer.calendars.map { |o| o.id.to_s }
+    end
   end
 end
 
